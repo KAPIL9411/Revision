@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #f8f8f5;
+    --surface: #ffffff;
+    --ink: #202124;
+    --muted: #777777;
+    --line: #e9e9e5;
+    --accent: #3157d5;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg text-ink antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+
+  ::selection {
+    background: #dce3fb;
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.011em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-[13px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn h-9 bg-accent px-3.5 text-white hover:bg-accent-dark;
+  }
+
+  .btn-secondary {
+    @apply btn h-9 border border-[#e1e1dc] bg-white px-3.5 text-ink hover:bg-[#f3f3ef];
+  }
+
+  .btn-ghost {
+    @apply btn h-9 px-2.5 text-[#55554f] hover:bg-[#efefea];
+  }
+
+  .btn-danger {
+    @apply btn h-9 border border-[#e7c9c9] bg-white px-3.5 text-[#b42318] hover:bg-[#fdf2f2];
+  }
+
+  .btn-icon {
+    @apply btn h-8 w-8 shrink-0 text-[#6b6b66] hover:bg-[#efefea] hover:text-ink;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-[#e1e1dc] bg-white px-3 py-2 text-[13.5px] text-ink placeholder:text-[#a3a39d] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15;
+  }
+
+  .select {
+    @apply input appearance-none pr-8;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23777777' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+  }
+
+  .label {
+    @apply mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.09em] text-[#8a8a85];
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-md border border-line bg-[#fafaf7] px-1.5 py-0.5 text-[11px] leading-[16px] text-[#6b6b66];
+  }
+
+  .navlink {
+    @apply flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13.5px] text-[#4a4a46] transition-colors hover:bg-[#efefea];
+  }
+
+  .navlink-active {
+    @apply bg-accent-soft font-medium text-accent;
+  }
+
+  .section-title {
+    @apply text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#8a8a85];
+  }
+
+  .h1 {
+    @apply text-[23px] font-semibold tracking-[-0.02em];
+  }
+
+  .h2 {
+    @apply text-[15px] font-semibold tracking-[-0.01em];
+  }
+
+  .prose-note {
+    @apply text-[14px] leading-[1.7] text-[#33332f];
+  }
+
+  .prose-note h2 {
+    @apply mb-2 mt-5 text-[16px] font-semibold text-ink;
+  }
+
+  .prose-note h3 {
+    @apply mb-1.5 mt-4 text-[14px] font-semibold text-ink;
+  }
+
+  .prose-note ul {
+    @apply my-2 list-disc space-y-1 pl-5;
+  }
+
+  .prose-note ol {
+    @apply my-2 list-decimal space-y-1 pl-5;
+  }
+
+  .prose-note p {
+    @apply my-2;
+  }
+
+  .prose-note code {
+    @apply rounded bg-[#f2f2ee] px-1 py-0.5 font-mono text-[13px] text-[#2f3e6e];
+  }
+
+  .formula {
+    @apply font-mono text-[13.5px] leading-relaxed text-[#2f3e6e];
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .thin-scroll::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  .thin-scroll::-webkit-scrollbar-thumb {
+    background: #e1e1dc;
+    border-radius: 4px;
+  }
+
+  .thin-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+
+  .line-clamp-2-safe {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
