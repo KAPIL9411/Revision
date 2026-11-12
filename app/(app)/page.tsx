@@ -74,11 +74,11 @@ function QuestionTile({ question, onOpen }: { question: Question; onOpen: () => 
       )}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent p-3 pt-6">
         {url ? (
-          <p className="line-clamp-2-safe text-[11.5px] font-medium leading-snug text-white">
+          <p className="line-clamp-2-safe text-[11.5px] font-medium leading-snug text-on-accent">
             {preview || 'Screenshot question'}
           </p>
         ) : null}
-        <p className={cn('text-[10px] text-white/70', url && 'mt-0.5')}>{relativeTime(question.createdAt)}</p>
+        <p className={cn('text-[10px] text-on-accent/70', url && 'mt-0.5')}>{relativeTime(question.createdAt)}</p>
       </div>
     </button>
   )
@@ -129,7 +129,7 @@ export default function DashboardPage() {
       </Link>
 
       <section className="grid gap-3 lg:grid-cols-[1.45fr_1fr]">
-        <div className="relative overflow-hidden rounded-[26px] bg-[#101014] p-5 text-white shadow-pop">
+        <div className="relative overflow-hidden rounded-[26px] bg-[#101014] p-5 text-on-accent shadow-pop">
           <div
             className="pointer-events-none absolute inset-0"
             style={{
@@ -140,7 +140,7 @@ export default function DashboardPage() {
           />
           <div className="relative flex h-full min-h-[186px] flex-col justify-between gap-6">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-accent/60">
                 {isEmpty ? 'Start here' : 'Continue revision'}
               </p>
               <h2 className="mt-2 text-[23px] font-semibold leading-tight tracking-[-0.02em]">
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                     ? data.continueTarget.chapter.name
                     : 'Pick a chapter to begin'}
               </h2>
-              <p className="mt-1.5 max-w-[36ch] text-[12.5px] leading-relaxed text-white/70">
+              <p className="mt-1.5 max-w-[36ch] text-[12.5px] leading-relaxed text-on-accent/70">
                 {isEmpty
                   ? 'Paste a screenshot, file it into a chapter, and your revision history starts here.'
                   : data.continueTarget
@@ -161,7 +161,7 @@ export default function DashboardPage() {
 
             <div className="flex items-end justify-between gap-3">
               <div className="flex min-w-0 items-center gap-2.5">
-                <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-white/10">
+                <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-on-accent/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/brand/ssc-emblem.webp" alt="" className="h-7 w-auto" />
                 </span>
@@ -171,7 +171,7 @@ export default function DashboardPage() {
                       ? 'SSC Revision Vault'
                       : (data.continueTarget?.subject?.name ?? data.continueTarget?.chapter.name ?? 'Library')}
                   </p>
-                  <p className="truncate text-[11px] text-white/60">
+                  <p className="truncate text-[11px] text-on-accent/60">
                     {isEmpty ? '99 chapters ready' : `${data.totalQuestions} saved · ${data.revisedQuestions} revised`}
                   </p>
                 </div>
@@ -179,21 +179,21 @@ export default function DashboardPage() {
               {isEmpty ? (
                 <button
                   onClick={() => setCaptureOpen(true)}
-                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[12.5px] font-semibold text-[#101014]"
+                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-on-accent px-4 text-[12.5px] font-semibold text-[#101014]"
                 >
                   <Plus className="h-3.5 w-3.5" /> Capture
                 </button>
               ) : data.continueTarget ? (
                 <Link
                   href={`/chapters/${data.continueTarget.chapter.id}/revise`}
-                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[12.5px] font-semibold text-[#101014]"
+                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-on-accent px-4 text-[12.5px] font-semibold text-[#101014]"
                 >
                   <Play className="h-3 w-3 fill-current" /> Start
                 </Link>
               ) : (
                 <Link
                   href="/subjects"
-                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[12.5px] font-semibold text-[#101014]"
+                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-on-accent px-4 text-[12.5px] font-semibold text-[#101014]"
                 >
                   Library <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
