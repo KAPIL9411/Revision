@@ -337,25 +337,25 @@ export function ImageViewer({
 
   return (
     <div className="fixed inset-0 z-[95] flex flex-col bg-[#0B0B0C]">
-      <div className="flex items-center justify-between px-4 py-3 text-white">
-        <p className="text-[12.5px] text-white/60">Handwritten solution</p>
+      <div className="flex items-center justify-between px-4 py-3 text-on-accent">
+        <p className="text-[12.5px] text-on-accent/60">Handwritten solution</p>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setZoom((value) => Math.max(1, value - 0.25))}
-            className="rounded-md p-2 text-white/80 hover:bg-white/10"
+            className="rounded-md p-2 text-on-accent/80 hover:bg-on-accent/10"
             aria-label="Zoom out"
           >
             <ZoomOut className="h-4 w-4" />
           </button>
-          <span className="w-10 text-center text-[12px] text-white/60">{Math.round(zoom * 100)}%</span>
+          <span className="w-10 text-center text-[12px] text-on-accent/60">{Math.round(zoom * 100)}%</span>
           <button
             onClick={() => setZoom((value) => Math.min(3, value + 0.25))}
-            className="rounded-md p-2 text-white/80 hover:bg-white/10"
+            className="rounded-md p-2 text-on-accent/80 hover:bg-on-accent/10"
             aria-label="Zoom in"
           >
             <ZoomIn className="h-4 w-4" />
           </button>
-          <button onClick={onClose} className="ml-2 rounded-md p-2 text-white/80 hover:bg-white/10" aria-label="Close">
+          <button onClick={onClose} className="ml-2 rounded-md p-2 text-on-accent/80 hover:bg-on-accent/10" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>

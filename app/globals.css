@@ -28,11 +28,13 @@
     --danger-line: 239 211 211;
     --formula: 47 62 110;
     --on-accent: 255 255 255;
+    --bg-on-accent: 255 255 255;
     color-scheme: light;
   }
 
   .dark {
     --bg: 10 10 11;
+    --bg-on-accent: 11 11 13;
     --surface: 18 18 20;
     --surface-2: 24 24 27;
     --surface-3: 33 33 37;

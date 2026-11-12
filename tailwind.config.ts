@@ -41,6 +41,7 @@ const config: Config = {
         },
         formula: token('--formula'),
         'on-accent': token('--on-accent'),
+        'bg-on-accent': token('--bg-on-accent'),
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
