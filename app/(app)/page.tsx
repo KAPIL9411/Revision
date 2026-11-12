@@ -138,7 +138,7 @@ export default function DashboardPage() {
             }}
             aria-hidden
           />
-          <div className="relative flex h-full min-h-[186px] flex-col justify-between gap-6">
+          <div className="relative flex h-full min-h-[200px] flex-col justify-between gap-6 md:min-h-[260px]">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-accent/60">
                 {isEmpty ? 'Start here' : 'Continue revision'}
