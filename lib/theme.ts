@@ -1,34 +1,27 @@
-export type ThemeChoice = 'light' | 'dark' | 'system'
+export type ThemeChoice = 'light'
 
 export const THEME_STORAGE_KEY = 'vault:theme'
 export const THEME_EVENT = 'vault:theme'
 
 export function readThemeChoice(): ThemeChoice {
-  if (typeof window === 'undefined') return 'system'
+  if (typeof window === 'undefined') return 'light'
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
-    return stored === 'light' || stored === 'dark' ? stored : 'system'
+    return stored === 'light' ? stored : 'light'
   } catch {
-    return 'system'
+    return 'light'
   }
 }
 
-function prefersDark() {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
-}
-
 export function resolveTheme(choice: ThemeChoice): 'light' | 'dark' {
-  if (choice === 'dark') return 'dark'
-  if (choice === 'light') return 'light'
-  return prefersDark() ? 'dark' : 'light'
+  return 'light'
 }
 
 export function applyTheme(choice: ThemeChoice) {
   if (typeof document === 'undefined') return
-  const resolved = resolveTheme(choice)
   const root = document.documentElement
-  root.classList.toggle('dark', resolved === 'dark')
-  root.style.colorScheme = resolved
+  root.classList.remove('dark')
+  root.style.colorScheme = 'light'
 }
 
 export function setThemeChoice(choice: ThemeChoice) {
@@ -52,4 +45,4 @@ export function getThemeSnapshot(): ThemeChoice {
 }
 
 /** Runs before first paint so a dark choice never flashes a white page. */
-export const THEME_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem('${THEME_STORAGE_KEY}');var d=c==='dark'||((!c||c==='system')&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d){r.classList.add('dark');}r.style.colorScheme=d?'dark':'light';}catch(e){}})()`
+export const THEME_INIT_SCRIPT = `(function(){try{var r=document.documentElement;r.classList.remove('dark');r.style.colorScheme='light';}catch(e){}})()`
