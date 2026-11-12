@@ -1,6 +1,7 @@
 'use client'
 
-import { useLiveQuery } from 'dexie-react-hooks'
+import { useLiveQuery as useLiveQueryRaw } from 'dexie-react-hooks'
+import { useLiveQuery } from '@/lib/hooks'
 import {
   ChevronRight,
   Flag,
@@ -43,6 +44,7 @@ import {
 import { createTopic, deleteFormula, deleteTopic, renameTopic, saveFormula } from '@/lib/store'
 import { REVISION_FILTERS, type Formula, type RevisionFilter } from '@/lib/types'
 import { cn, formatDate, relativeTime } from '@/lib/utils'
+import type { Attachment } from '@/lib/types'
 
 function FormulaDialog({
   open,
@@ -160,12 +162,17 @@ export default function ChapterPage() {
   const formulas = useChapterFormulas(chapterId)
   const topics = useTopics(chapterId)
 
-  const notePhotos = useLiveQuery(async () => {
-    if (!note?.id) return []
-    return (await db.attachments.where('noteId').equals(note.id).toArray()).sort(
-      (a, b) => a.displayOrder - b.displayOrder,
-    )
-  }, [note?.id])
+  const notePhotos = (useLiveQuery as unknown as {
+    <T>(selector: (() => T | Promise<T>) | readonly unknown[], deps?: readonly unknown[]): T | undefined
+  })(
+    async () => {
+      if (!note?.id) return [] as Attachment[]
+      return (await db.attachments.where('noteId').equals(note.id).toArray()).sort(
+        (a, b) => a.displayOrder - b.displayOrder,
+      )
+    },
+    [note?.id] as [undefined],
+  ) ?? []
 
   const [tab, setTab] = useState<'questions' | 'notes' | 'formulas'>('questions')
   const [filter, setFilter] = useState<RevisionFilter>('all')

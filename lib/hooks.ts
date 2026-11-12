@@ -1,6 +1,6 @@
 'use client'
 
-import { useLiveQuery } from 'dexie-react-hooks'
+import { useLiveQuery as _liveQuery } from 'dexie-react-hooks'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { db, getMeta } from './db'
 import { fetchDriveImage } from './drive'
@@ -453,7 +453,7 @@ export function useAllTags() {
   return useLiveQuery(async () => (await db.tags.toArray()).map((tag) => tag.name).sort(), [])
 }
 
-export function useLiveQuery<T>(asyncFn: () => Promise<T>, deps: any[]) { return useLiveQuery(asyncFn, deps) }
+export function useLiveQuery<T>(asyncFn: () => Promise<T>, deps: any[]) {   return _liveQuery(asyncFn, deps) as T }
 
 export function useChapterOptions() {
   return useLiveQuery(async () => {

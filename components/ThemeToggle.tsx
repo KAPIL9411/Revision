@@ -4,6 +4,7 @@ import { Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useThemeChoice } from '@/lib/hooks'
 import { setThemeChoice } from '@/lib/theme'
+import { cn } from '@/lib/utils'
 
 export function ThemeQuickToggle({ className }: { className?: string }) {
   const choice = useThemeChoice()

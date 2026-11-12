@@ -1,6 +1,6 @@
 'use client'
 
-import { Clock, Flag, Inbox, MoreHorizontal, Plus, Search, Sigma } from 'lucide-react'
+import { Clock, Flag, Inbox, MoreHorizontal, Play, Plus, Search, Sigma } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useDashboard } from '@/lib/hooks'
@@ -11,9 +11,9 @@ import { SyncBadge } from '@/components/shell/Sidebar'
 import { ThemeQuickToggle } from '@/components/ThemeToggle'
 import { Button, EmptyState, ProgressBar, Sheet, Spinner } from '@/components/ui'
 import { getMeta } from '@/lib/db'
-import { useAttachmentUrl } from '@/lib/hooks'
+import { useAttachmentUrl, useLiveQuery } from '@/lib/hooks'
 import { getSupabase } from '@/lib/supabase'
-import type { Question } from '@/lib/types'
+import type { Question, Subject } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 function greeting() {
@@ -232,7 +232,7 @@ export default function DashboardPage() {
                     <p className="text-[10px] text-on-accent/60">{'just now'}</p>
                   </div>
                   <div className="mt-2 flex items-center gap-1.5">
-                    <span className="text-[11px] text-muted">{question.primaryChapter?.name || 'Inbox'}</span>
+                    <span className="text-[11px] text-muted">{question.primaryChapterId ? 'Chapter' : 'Inbox'}</span>
                     <span className="text-[10px] text-muted">1 of 1</span>
                   </div>
                 </div>
@@ -278,12 +278,12 @@ export default function DashboardPage() {
                 className="rounded-xl border border-line bg-surface p-3 hover:border-accent transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: row.subject.color }} />
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: '#101014' }} />
                   <span className="font-medium truncate text-ink">{row.subject.name}</span>
                   <span className="ml-auto text-[10px] text-on-accent/60">{row.revised}/{row.total}</span>
                 </div>
                 <div className="mt-1.5">
-                  <ProgressBar value={row.revised} total={row.total} className="h-1.5" />
+                  <ProgressBar value={row.revised} total={row.total} />
                 </div>
               </div>
             ))}
@@ -304,13 +304,13 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center gap-2">
                     {row.chapter.parentId ? (
-                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: row.chapter.color }} />
+                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: row.chapter.parentId ? '#101014' : 'transparent' }} />
                     ) : null}
                     <span className="font-medium truncate text-ink">{row.chapter.name}</span>
                     <span className="text-[10px] text-on-accent/60">{'just now'}</span>
                   </div>
                   <div className="mt-1.5">
-                    <ProgressBar value={row.revised} total={row.total} className="h-1.5" />
+                    <ProgressBar value={row.revisedAt.length} total={row.revisedAt.length} />
                   </div>
                 </div>
               ))
