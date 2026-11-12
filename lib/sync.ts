@@ -20,6 +20,16 @@ const REMOTE_TABLE: Record<Entity, string> = {
 
 const ENTITIES = Object.keys(REMOTE_TABLE) as Entity[]
 
+/**
+ * Cursor column per table. Revision history is append-only and has no updated_at,
+ * so its own event time is the sync stamp.
+ */
+const SYNC_STAMP: Partial<Record<Entity, string>> = { revisionHistory: 'revised_at' }
+
+function stampColumn(entity: Entity) {
+  return SYNC_STAMP[entity] ?? 'updated_at'
+}
+
 type RemoteRow = Record<string, any>
 
 /* ------------------------------------------------------------------ mapping */
@@ -134,7 +144,16 @@ function fromRemote(entity: Entity, row: RemoteRow, existing?: any): any {
     case 'formulas':
       return { ...base, subjectId: row.subject_id, chapterId: row.chapter_id, title: row.title, expression: row.expression, note: row.note, createdAt: row.created_at, updatedAt: row.updated_at }
     case 'revisionHistory':
-      return { ...base, questionId: row.question_id, chapterId: row.chapter_id, revisedAt: row.revised_at, status: row.status, feedback: row.feedback }
+      return {
+        ...base,
+        questionId: row.question_id,
+        chapterId: row.chapter_id,
+        revisedAt: row.revised_at,
+        status: row.status,
+        feedback: row.feedback,
+        updatedAt: row.updated_at ?? row.revised_at,
+        createdAt: row.updated_at ?? row.revised_at,
+      }
     case 'tags':
       return { ...base, name: row.name, createdAt: row.created_at, updatedAt: row.updated_at }
     case 'questionTags':
@@ -270,12 +289,13 @@ async function pullEntity(entity: Entity) {
   const supabase = getSupabase()
   if (!supabase) return
   const cursorKey = `pull:${entity}`
+  const stamp = stampColumn(entity)
   const cursor = (await getMeta(cursorKey)) ?? '1970-01-01T00:00:00.000Z'
   const { data, error } = await supabase
     .from(REMOTE_TABLE[entity])
     .select('*')
-    .gt('updated_at', cursor)
-    .order('updated_at', { ascending: true })
+    .gt(stamp, cursor)
+    .order(stamp, { ascending: true })
     .limit(1000)
   if (error) throw new Error(`${entity}: ${error.message}`)
   if (!data?.length) return
@@ -288,7 +308,7 @@ async function pullEntity(entity: Entity) {
   for (const remote of data as RemoteRow[]) {
     const existing = await table.get(remote.id)
     const localUpdatedAt: string | undefined = existing?.updatedAt
-    const remoteUpdatedAt: string = remote.updated_at
+    const remoteUpdatedAt: string = remote[stamp] ?? remote.updated_at
 
     if (existing && pendingKeys.has(`${entity}:${remote.id}`)) {
       if (new Date(remoteUpdatedAt).getTime() > new Date(localUpdatedAt ?? 0).getTime()) {
