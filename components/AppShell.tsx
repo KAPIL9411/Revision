@@ -46,6 +46,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     useSensor(KeyboardSensor),
   )
 
+  // Supabase falls back to its Site URL when the callback isn't allow-listed, which can land
+  // the auth code on any route. Send it to the callback page so it is exchanged properly.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('code') || params.has('error_description')) {
+      router.replace(`/auth/callback${window.location.search}`)
+    }
+  }, [router])
+
   useEffect(() => {
     let cancelled = false
     void (async () => {
@@ -94,6 +104,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = getSupabase()
     if (!supabase) return
+    // The auth code is being handed to /auth/callback — don't race it with a /login redirect.
+    if (new URLSearchParams(window.location.search).has('code')) return
     let cancelled = false
 
     void supabase.auth.getSession().then(({ data }) => {
