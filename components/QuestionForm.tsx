@@ -235,8 +235,19 @@ export function QuestionForm({
 
   const photoLabel = existingImage || file ? 'Replace photo' : 'Add photo'
 
+  /** Screenshots pasted from the clipboard attach straight to the question. */
+  const handlePaste = (event: React.ClipboardEvent<HTMLFormElement>) => {
+    const items = Array.from(event.clipboardData?.items ?? [])
+    const pasted = items.find((item) => item.kind === 'file' && item.type.startsWith('image/'))?.getAsFile()
+    if (!pasted) return
+    const hasText = items.some((item) => item.kind === 'string' && item.type === 'text/plain')
+    if (!hasText) event.preventDefault()
+    setFile(pasted)
+    toast('Screenshot attached')
+  }
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4" onPaste={handlePaste}>
       <div>
         <Field
           label="Question"
@@ -246,7 +257,7 @@ export function QuestionForm({
           <textarea
             id="questionText"
             rows={compact ? 3 : 4}
-            placeholder="Type or paste the question. Formulas, options, whatever you have."
+            placeholder="Paste a screenshot, or type the question. Text is optional."
             className="input resize-y leading-relaxed"
             {...register('questionText')}
           />

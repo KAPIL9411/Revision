@@ -83,7 +83,12 @@ export interface Attachment {
   questionId: string | null
   noteId: string | null
   kind: AttachmentKind
+  /** Supabase Storage path, used when Google Drive is not connected. */
   storagePath: string | null
+  /** Where the binary actually lives remotely. */
+  remoteProvider?: 'drive' | 'supabase' | null
+  /** Google Drive file id for the uploaded photo. */
+  remoteFileId?: string | null
   displayOrder: number
   width: number | null
   height: number | null

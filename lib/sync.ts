@@ -1,4 +1,5 @@
 import { claimLocalData, db, getMeta, getUserId, setMeta } from './db'
+import { driveConfigured, uploadAttachmentToDrive } from './drive'
 import { BUCKET, getSupabase, supabaseEnabled } from './supabase'
 import type { Entity } from './types'
 import { nowISO, uid } from './utils'
@@ -60,6 +61,8 @@ function toRemote(entity: Entity, row: any): RemoteRow {
         note_id: row.noteId,
         kind: row.kind,
         storage_path: row.storagePath,
+        remote_provider: row.remoteProvider ?? null,
+        remote_file_id: row.remoteFileId ?? null,
         display_order: row.displayOrder,
         width: row.width,
         height: row.height,
@@ -116,6 +119,8 @@ function fromRemote(entity: Entity, row: RemoteRow, existing?: any): any {
         noteId: row.note_id,
         kind: row.kind,
         storagePath: row.storage_path,
+        remoteProvider: row.remote_provider ?? (row.storage_path ? 'supabase' : null),
+        remoteFileId: row.remote_file_id ?? null,
         displayOrder: row.display_order,
         width: row.width,
         height: row.height,
@@ -220,7 +225,19 @@ async function pushOnce(userId: string) {
           continue
         }
         if (entry.entity === 'attachments') {
-          local.storagePath = await uploadAttachmentBlob(userId, local)
+          // Drive is the primary photo store; Supabase Storage is the fallback.
+          if (!local.remoteFileId && local.blob && driveConfigured) {
+            try {
+              local.remoteFileId = await uploadAttachmentToDrive(local)
+              local.remoteProvider = 'drive'
+            } catch {
+              /* Drive unavailable or signed out — fall through to Storage. */
+            }
+          }
+          if (local.remoteProvider !== 'drive') {
+            local.storagePath = await uploadAttachmentBlob(userId, local)
+            if (local.storagePath) local.remoteProvider = 'supabase'
+          }
           if (local.questionId && local.kind === 'question_image' && local.storagePath) {
             const question = await db.questions.get(local.questionId)
             if (question && question.questionImagePath !== local.storagePath) {

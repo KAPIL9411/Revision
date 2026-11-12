@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Cloud,
   Download,
+  FolderOpen,
   HardDrive,
   LogOut,
   RefreshCw,
@@ -17,6 +18,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, ConfirmDialog, toast } from '@/components/ui'
 import { db, getMeta, setMeta } from '@/lib/db'
 import { exportBackup, importBackup } from '@/lib/backup'
+import { connectDrive, disconnectDrive, driveConfigured, getDriveStatus, uploadPendingImages } from '@/lib/drive'
 import { getSupabase, signOut, supabaseEnabled, allowedEmail } from '@/lib/supabase'
 import { resolveConflict, syncNow } from '@/lib/sync'
 import { wipeAllData } from '@/lib/store'
@@ -73,6 +75,11 @@ export default function SettingsPage() {
   const [importSummary, setImportSummary] = useState<string | null>(null)
   const [wipeOpen, setWipeOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  const [driveBusy, setDriveBusy] = useState(false)
+  const [drive, setDrive] = useState<Awaited<ReturnType<typeof getDriveStatus>> | null>(null)
+  const attachments = useLiveQuery(() => db.attachments.toArray(), [])
+  const pendingImages = (attachments ?? []).filter((row) => row.blob && !row.remoteFileId).length
+  const driveImages = (attachments ?? []).filter((row) => row.remoteProvider === 'drive').length
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -94,6 +101,48 @@ export default function SettingsPage() {
       setUsage({ bytes, images })
     })()
   }, [importSummary])
+
+  useEffect(() => {
+    void getDriveStatus().then(setDrive)
+  }, [attachments?.length])
+
+  const refreshDrive = async () => setDrive(await getDriveStatus())
+
+  const connectDriveNow = async () => {
+    setDriveBusy(true)
+    try {
+      await connectDrive()
+      const result = await uploadPendingImages()
+      await refreshDrive()
+      toast(
+        result.uploaded
+          ? `Drive connected · ${result.uploaded} photo${result.uploaded === 1 ? '' : 's'} uploaded`
+          : 'Google Drive connected',
+      )
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Could not connect Google Drive', 'error')
+    } finally {
+      setDriveBusy(false)
+    }
+  }
+
+  const pushImages = async () => {
+    setDriveBusy(true)
+    try {
+      const result = await uploadPendingImages()
+      await refreshDrive()
+      toast(
+        result.failed
+          ? `${result.uploaded} uploaded, ${result.failed} still pending`
+          : `${result.uploaded} photo${result.uploaded === 1 ? '' : 's'} uploaded to Drive`,
+        result.failed ? 'error' : 'default',
+      )
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Upload failed', 'error')
+    } finally {
+      setDriveBusy(false)
+    }
+  }
 
   const saveGoal = async () => {
     const value = Math.max(1, Math.min(200, Math.round(goal)))
@@ -300,6 +349,95 @@ export default function SettingsPage() {
         ) : null}
       </Section>
 
+      <Section
+        id="drive"
+        title="Photo storage"
+        description="Photos upload to a folder called “SSC Revision Vault” in your Google Drive. This device keeps a copy so everything still opens offline."
+      >
+        {!driveConfigured ? (
+          <div className="space-y-2 text-[11.5px] leading-relaxed text-[#55554F]">
+            <p>
+              Google Drive is not configured yet. Create an OAuth <em>Web application</em> client in Google Cloud
+              Console, enable the Google Drive API, then add:
+            </p>
+            <ul className="space-y-1">
+              <li>
+                <code className="rounded bg-[#F3F3EF] px-1 py-0.5">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> — the client ID
+                (no secret is needed in the browser)
+              </li>
+            </ul>
+            <p className="text-muted">
+              Until then photos stay in this browser and, once Supabase is set up, in Supabase Storage.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {[
+                [
+                  'Status',
+                  drive?.authorised ? 'Connected' : drive?.linked ? 'Reconnect needed' : 'Not connected',
+                ],
+                ['Photos in Drive', String(driveImages)],
+                ['Only on this device', String(pendingImages)],
+                [
+                  'Google account',
+                  drive?.authorised || drive?.linked ? 'Drive access granted' : 'No access yet',
+                ],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between rounded-lg border border-line px-3 py-2">
+                  <span className="text-[11.5px] text-muted">{label}</span>
+                  <span className="text-[12px] font-medium">{value}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="primary" loading={driveBusy} onClick={connectDriveNow}>
+                <FolderOpen className="h-3.5 w-3.5" />
+                {drive?.authorised ? 'Reconnect Drive' : 'Connect Google Drive'}
+              </Button>
+              {pendingImages > 0 && drive?.authorised ? (
+                <Button variant="secondary" loading={driveBusy} onClick={pushImages}>
+                  <Upload className="h-3.5 w-3.5" /> Upload {pendingImages} photo{pendingImages === 1 ? '' : 's'}
+                </Button>
+              ) : null}
+              {drive?.folderUrl ? (
+                <a
+                  href={drive.folderUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-[11.5px] text-accent underline decoration-dotted"
+                >
+                  Open Drive folder
+                </a>
+              ) : null}
+              {drive?.linked ? (
+                <Button
+                  variant="ghost"
+                  className="text-[11.5px] text-muted"
+                  onClick={async () => {
+                    await disconnectDrive()
+                    await refreshDrive()
+                    toast('Google Drive disconnected · photos stay on this device')
+                  }}
+                >
+                  Disconnect
+                </Button>
+              ) : null}
+            </div>
+
+            <p className="text-[11px] leading-relaxed text-muted">
+              {drive?.linked && !drive?.authorised
+                ? 'Drive needs permission again in this tab — press Reconnect to resume uploads.'
+                : pendingImages > 0
+                  ? `${pendingImages} photo${pendingImages === 1 ? '' : 's'} still ${pendingImages === 1 ? 'exists' : 'exist'} only on this device. ${pendingImages === 1 ? 'It uploads' : 'They upload'} automatically once Drive is connected.`
+                  : 'Every photo is in Drive and cached here for offline viewing.'}
+            </p>
+          </div>
+        )}
+      </Section>
+
       <Section title="Revision goal" description="Used for the daily progress bar on the dashboard.">
         <div className="flex items-end gap-2">
           <div className="w-32">
@@ -343,7 +481,7 @@ export default function SettingsPage() {
           />
           <span className="text-[11.5px] text-muted">
             <HardDrive className="mr-1 inline h-3 w-3" />
-            {usage.images} photos · {formatBytes(usage.bytes)} stored on this device
+            {usage.images} photo{usage.images === 1 ? '' : 's'} · {formatBytes(usage.bytes)} stored on this device
           </span>
         </div>
         {importSummary ? (

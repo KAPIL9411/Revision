@@ -3,6 +3,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { db, getMeta } from './db'
+import { fetchDriveImage } from './drive'
 import { getSignedUrl } from './supabase'
 import { getSyncState, subscribeSync } from './sync'
 import type { Attachment, Chapter, Formula, Question, RevisionEntry, Subject, Topic } from './types'
@@ -374,6 +375,7 @@ export function useAttachmentUrl(attachment: Attachment | null | undefined) {
   const [url, setUrl] = useState<string | null>(null)
   const blob = attachment?.blob ?? null
   const storagePath = attachment?.storagePath ?? null
+  const driveFileId = attachment?.remoteProvider === 'drive' ? attachment.remoteFileId ?? null : null
 
   useEffect(() => {
     if (!attachment) {
@@ -385,6 +387,24 @@ export function useAttachmentUrl(attachment: Attachment | null | undefined) {
       setUrl(localUrl)
       return () => URL.revokeObjectURL(localUrl)
     }
+    if (driveFileId) {
+      let cancelled = false
+      let created: string | null = null
+      setUrl(null)
+      void fetchDriveImage({ ...attachment, remoteFileId: driveFileId })
+        .then((downloaded) => {
+          if (cancelled || !downloaded) return
+          created = URL.createObjectURL(downloaded)
+          setUrl(created)
+        })
+        .catch(() => {
+          if (!cancelled) setUrl(null)
+        })
+      return () => {
+        cancelled = true
+        if (created) URL.revokeObjectURL(created)
+      }
+    }
     if (storagePath) {
       let cancelled = false
       void getSignedUrl(storagePath).then((signed) => {
@@ -395,7 +415,7 @@ export function useAttachmentUrl(attachment: Attachment | null | undefined) {
       }
     }
     setUrl(null)
-  }, [attachment, blob, storagePath])
+  }, [attachment, blob, storagePath, driveFileId])
 
   return url
 }

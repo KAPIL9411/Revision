@@ -15,6 +15,7 @@ import { PanelRightClose } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
 import { db, getUserId } from '@/lib/db'
+import { driveConfigured, uploadPendingImages } from '@/lib/drive'
 import { seedIfNeeded } from '@/lib/seed'
 import { moveQuestion } from '@/lib/store'
 import { getSupabase, isEmailAllowed, signOut, supabaseEnabled } from '@/lib/supabase'
@@ -57,6 +58,29 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => startSync(), [])
+
+  // Photos reach Drive shortly after capture, and any backlog is retried quietly.
+  useEffect(() => {
+    if (!driveConfigured) return
+    let cancelled = false
+    const run = () => {
+      if (cancelled || !navigator.onLine) return
+      void uploadPendingImages()
+    }
+    const timer = window.setTimeout(run, 2_500)
+    const interval = window.setInterval(run, 90_000)
+    window.addEventListener('vault:images', run)
+    window.addEventListener('vault:sync', run)
+    window.addEventListener('online', run)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+      window.clearInterval(interval)
+      window.removeEventListener('vault:images', run)
+      window.removeEventListener('vault:sync', run)
+      window.removeEventListener('online', run)
+    }
+  }, [])
 
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production') return

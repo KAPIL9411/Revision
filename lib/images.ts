@@ -92,6 +92,12 @@ export async function processImage(file: File): Promise<ProcessedImage> {
   return { blob, thumb, width: w, height: h }
 }
 
+/** Process a blob that did not come from a file input (e.g. downloaded from Drive). */
+export async function processBlob(blob: Blob): Promise<ProcessedImage> {
+  const file = new File([blob], 'image.jpg', { type: blob.type || 'image/jpeg' })
+  return processImage(file)
+}
+
 export function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`

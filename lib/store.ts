@@ -370,6 +370,7 @@ export async function addImageAttachment(input: {
   }
   await db.attachments.add(row)
   await enqueue('attachments', row.id, 'upsert')
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('vault:images', { detail: row.id }))
   return row.id
 }
 

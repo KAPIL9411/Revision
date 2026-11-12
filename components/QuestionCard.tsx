@@ -15,7 +15,7 @@ import {
   Inbox,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useChapterOptions } from '@/lib/hooks'
+import { useAttachmentUrl, useChapterOptions, useQuestionAttachments } from '@/lib/hooks'
 import { deleteQuestion, moveQuestion, toggleBookmark, toggleDifficult } from '@/lib/store'
 import { DIFFICULTY_LABEL, SOURCE_LABEL, type Question } from '@/lib/types'
 import { cn, formatShortDate, relativeTime } from '@/lib/utils'
@@ -29,6 +29,11 @@ import {
   Sheet,
   toast,
 } from './ui'
+
+function useQuestionImage(questionId: string | undefined) {
+  const attachments = useQuestionAttachments(questionId)
+  return (attachments ?? []).find((row) => row.kind === 'question_image') ?? null
+}
 
 export function MoveChapterSheet({
   open,
@@ -143,6 +148,9 @@ export function QuestionCard({
   const [moveOpen, setMoveOpen] = useState(false)
 
   const preview = question.questionText.replace(/\s+/g, ' ').trim()
+  // Photo-only cards show the screenshot itself; nothing else identifies them.
+  const questionImage = useQuestionImage(preview ? undefined : question.id)
+  const questionImageUrl = useAttachmentUrl(questionImage)
   const statusChip =
     revisionStatus === 'revised'
       ? { label: 'Revised', tone: 'text-[#216A4A] bg-[#EAF4EE] border-[#CFE6D9]' }
@@ -206,6 +214,16 @@ export function QuestionCard({
               <p className={cn('line-clamp-2-safe text-[13.5px] leading-relaxed text-[#2A2A27]', compact && 'text-[13px]')}>
                 {preview}
               </p>
+            ) : questionImageUrl ? (
+              <div className="overflow-hidden rounded-md border border-line bg-[#F3F3EF]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={questionImageUrl}
+                  alt="Question screenshot"
+                  loading="lazy"
+                  className="max-h-44 w-full object-cover object-top"
+                />
+              </div>
             ) : (
               <p className="text-[13px] italic text-[#9A9A94]">Photo-only question</p>
             )}

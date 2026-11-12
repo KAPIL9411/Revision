@@ -17,7 +17,8 @@ available on a laptop and a phone.
 | Framework | Next.js (App Router) + TypeScript |
 | Styling | Tailwind CSS, Inter, custom design tokens |
 | Local store | Dexie (IndexedDB) — source of truth for the UI |
-| Sync | Supabase Postgres + Storage, outbox push, cursor pull |
+| Sync | Supabase Postgres, outbox push, cursor pull |
+| Photos | Google Drive (`drive.file` scope) + IndexedDB cache; Supabase Storage fallback |
 | Forms & validation | React Hook Form + Zod |
 | Drag and drop | dnd-kit (pointer + keyboard sensors) |
 | Backup | `fflate` ZIP containing JSON + every image |
@@ -66,6 +67,41 @@ Deploy the frontend to Vercel and add the same environment variables in the proj
 
 ---
 
+## Photos in Google Drive (recommended)
+
+Questions are usually screenshots, so the photo is the record. With a Google OAuth client configured, every
+question image, handwritten solution and note photo is uploaded to a folder named **SSC Revision Vault** in
+your own Drive, and the row keeps the Drive file id. The device also keeps a local copy, so images open
+instantly and still work offline.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the **Google
+   Drive API**.
+2. Configure the OAuth consent screen (External is fine for personal use; add your own address as a test user
+   while the app is unpublished). The `drive.file` scope is non-sensitive, so no verification review is
+   needed.
+3. Create credentials → **OAuth client ID** → *Web application*. Add authorised JavaScript origins:
+   `http://localhost:3000` and your deployed origin.
+4. Put the client ID in `.env.local` (or your host's environment):
+
+   ```bash
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
+   ```
+
+5. Restart, open **Settings → Photo storage**, press **Connect Google Drive**, and approve access.
+
+How it behaves:
+
+- New captures upload within seconds of saving; the app retries any backlog on reconnect, on every sync, and
+  every 90 seconds while open.
+- Deleting the vault folder in Drive is recoverable: the app recreates it and re-uploads on the next pass.
+- If Drive is signed out, photos stay on-device (and go to Supabase Storage once sync is configured) — nothing
+  is lost, and Settings shows how many photos are still only on this device.
+- The scope is `drive.file`: the app can only see files it created. It cannot read the rest of your Drive.
+- Access tokens live in `sessionStorage` for the tab and are revoked on **Disconnect**; no client secret or
+  refresh token exists in the browser.
+
+---
+
 ## Architecture
 
 ```
@@ -78,6 +114,7 @@ lib/
   store.ts                every write: Dexie transaction + sync outbox entry
   hooks.ts                live queries (tree, chapter stats, dashboard, attachments)
   sync.ts                 push outbox → Supabase, pull cursors → Dexie, conflict records
+  drive.ts                Google Drive folder, uploads, downloads and local caching
   backup.ts               ZIP export / conflict-safe restore
   images.ts               resize + re-encode photos, thumbnails, EXIF-safe orientation
   seed.ts                 SSC subject/chapter hierarchy with stable ids
@@ -94,13 +131,15 @@ The core loop must never wait for the network. Every mutation is written to Inde
 ### Sync and conflicts
 
 - **Push**: outbox entries are deduplicated per row, read the current local row, upload any pending photo to
-  Storage (`attachments/<user>/<question-or-note>/<attachment>.jpg`), then `upsert` into Postgres.
+  Drive first (falling back to Storage at
+  `attachments/<user>/<question-or-note>/<attachment>.jpg`), then `upsert` into Postgres.
 - **Pull**: each table has an `updated_at` cursor. Rows newer than the cursor are applied locally.
 - **Conflicts**: if a row has a pending local change *and* the server copy is newer, the local copy is kept and
   a record appears in **Settings → Synchronisation**. Nothing is silently overwritten; you choose
   “Keep this device” or “Use server”.
-- Attachments store the binary in IndexedDB for offline viewing and upload it once; server-only photos are
-  shown through short-lived signed URLs.
+- Attachments store the binary in IndexedDB for offline viewing and upload it once. A device without the
+  binary fetches it by Drive file id (or through a short-lived Storage URL) and caches it locally, so a photo
+  only crosses the network once per device.
 
 ### Backup
 

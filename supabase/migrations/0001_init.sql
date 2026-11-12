@@ -120,6 +120,8 @@ create table if not exists public.question_attachments (
   note_id text,
   kind text not null check (kind in ('question_image', 'solution', 'note_photo')),
   storage_path text,
+  remote_provider text check (remote_provider in ('drive', 'supabase')),
+  remote_file_id text,
   display_order integer not null default 0,
   width integer,
   height integer,
