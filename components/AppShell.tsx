@@ -36,6 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [captureOpen, setCaptureOpen] = useState(false)
+  const [pastedImage, setPastedImage] = useState<File | null>(null)
   const [activeDrag, setActiveDrag] = useState<{ id: string; text: string } | null>(null)
   const [authChecked, setAuthChecked] = useState(!supabaseEnabled)
   const [blockedEmail, setBlockedEmail] = useState<string | null>(null)
@@ -126,6 +127,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       subscription.subscription.unsubscribe()
     }
   }, [router])
+
+  // A screenshot pasted anywhere opens capture with the photo already attached.
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent) => {
+      const items = Array.from(event.clipboardData?.items ?? [])
+      const pasted = items.find((item) => item.kind === 'file' && item.type.startsWith('image/'))?.getAsFile()
+      if (!pasted) return
+      event.preventDefault()
+      setPastedImage(pasted)
+      setPanelOpen(false)
+      setCaptureOpen(true)
+    }
+    window.addEventListener('paste', onPaste)
+    return () => window.removeEventListener('paste', onPaste)
+  }, [])
 
   useEffect(() => {
     if (!panelOpen) return
@@ -256,12 +272,25 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <Sheet
         open={captureOpen}
-        onClose={() => setCaptureOpen(false)}
+        onClose={() => {
+          setCaptureOpen(false)
+          setPastedImage(null)
+        }}
         title="Quick capture"
-        description="Saved to the Inbox — file it whenever you like."
+        description={
+          pastedImage
+            ? 'Screenshot attached — pick a chapter, then save.'
+            : 'Paste a screenshot with Ctrl+V (⌘V), or add a photo from this device.'
+        }
         size="md"
       >
-        <QuickCapture onSaved={() => setCaptureOpen(false)} />
+        <QuickCapture
+          initialImage={pastedImage}
+          onSaved={() => {
+            setCaptureOpen(false)
+            setPastedImage(null)
+          }}
+        />
       </Sheet>
 
       <DragOverlay dropAnimation={null}>

@@ -66,6 +66,7 @@ export function QuestionForm({
   defaultSubjectId,
   defaultChapterId,
   compact,
+  initialImage,
   onSaved,
   onCancel,
 }: {
@@ -73,6 +74,8 @@ export function QuestionForm({
   defaultSubjectId?: string
   defaultChapterId?: string | null
   compact?: boolean
+  /** A screenshot pasted elsewhere in the app, attached as soon as the form mounts. */
+  initialImage?: File | null
   onSaved?: (id: string) => void
   onCancel?: () => void
 }) {
@@ -132,6 +135,10 @@ export function QuestionForm({
       setValue('subjectId', question?.subjectId ?? defaultSubjectId ?? subjects[0].id)
     }
   }, [subjectId, subjects, question?.subjectId, defaultSubjectId, setValue])
+
+  useEffect(() => {
+    if (initialImage) setFile(initialImage)
+  }, [initialImage])
 
   useEffect(() => {
     if (!file) {
@@ -240,6 +247,7 @@ export function QuestionForm({
     const items = Array.from(event.clipboardData?.items ?? [])
     const pasted = items.find((item) => item.kind === 'file' && item.type.startsWith('image/'))?.getAsFile()
     if (!pasted) return
+    event.stopPropagation()
     const hasText = items.some((item) => item.kind === 'string' && item.type === 'text/plain')
     if (!hasText) event.preventDefault()
     setFile(pasted)

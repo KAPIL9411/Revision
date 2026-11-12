@@ -6,7 +6,13 @@ import { useChapterOptions } from '@/lib/hooks'
 import { QuestionForm } from './QuestionForm'
 import { Spinner } from './ui'
 
-export function QuickCapture({ onSaved }: { onSaved?: (id: string) => void }) {
+export function QuickCapture({
+  onSaved,
+  initialImage,
+}: {
+  onSaved?: (id: string) => void
+  initialImage?: File | null
+}) {
   const options = useChapterOptions()
   const lastChapterId = useLiveQuery(() => getMeta('lastChapterId'), [])
   const lastChapter = (options ?? []).find((row) => row.chapter.id === lastChapterId)
@@ -22,6 +28,7 @@ export function QuickCapture({ onSaved }: { onSaved?: (id: string) => void }) {
         compact
         defaultSubjectId={lastChapter?.chapter.subjectId}
         defaultChapterId={null}
+        initialImage={initialImage}
         onSaved={onSaved}
       />
     </div>
