@@ -102,56 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  useEffect(() => {
-    const supabase = getSupabase()
-    if (!supabase) return
-    // The auth code is being handed to /auth/callback — don't race it with a /login redirect.
-    if (new URLSearchParams(window.location.search).has('code')) return
-    let cancelled = false
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (cancelled) return
-      if (!data.session) {
-        router.replace('/login')
-        return
-      }
-      if (!isEmailAllowed(data.session.user.email)) {
-        setBlockedEmail(data.session.user.email ?? 'unknown account')
-        return
-      }
-      setAuthChecked(true)
-    })
-
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        router.replace('/login')
-        return
-      }
-      if (!isEmailAllowed(session.user.email)) {
-        setBlockedEmail(session.user.email ?? 'unknown account')
-        return
-      }
-      setBlockedEmail(null)
-      setAuthChecked(true)
-    })
-
-    return () => {
-      cancelled = true
-      subscription.subscription.unsubscribe()
-    }
-  }, [router])
-
-  useEffect(() => {
-    applyTheme(readThemeChoice())
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => {
-      if (readThemeChoice() === 'system') applyTheme('system')
-    }
-    media.addEventListener('change', onChange)
-    return () => media.removeEventListener('change', onChange)
-  }, [])
-
-  // A screenshot pasted anywhere opens capture with the photo already attached.
+  undefined
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
       const items = Array.from(event.clipboardData?.items ?? [])

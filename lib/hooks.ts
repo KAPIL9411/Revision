@@ -453,6 +453,8 @@ export function useAllTags() {
   return useLiveQuery(async () => (await db.tags.toArray()).map((tag) => tag.name).sort(), [])
 }
 
+export function useLiveQuery<T>(asyncFn: () => Promise<T>, deps: any[]) { return useLiveQuery(asyncFn, deps) }
+
 export function useChapterOptions() {
   return useLiveQuery(async () => {
     const [subjects, chapters] = await Promise.all([db.subjects.toArray(), db.chapters.toArray()])

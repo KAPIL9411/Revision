@@ -5,7 +5,6 @@ const token = (name: string) => `rgb(var(${name}) / <alpha-value>)`
 
 const config: Config = {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {

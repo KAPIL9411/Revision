@@ -265,17 +265,7 @@ export default function SettingsPage() {
         )}
       </Section>
 
-      <Section
-        id="appearance"
-        title="Appearance"
-        description="Dark mode paints the vault near-black for late-night revision. The choice is remembered on this device."
-      >
-        <ThemeSegmented />
-        <p className="mt-3 text-[11px] leading-relaxed text-muted">
-          The moon button in the sidebar (and the header on your phone) switches instantly between light and dark.
-          System follows your device setting.
-        </p>
-      </Section>
+      
 
       <Section id="sync" title="Synchronisation" description="Every change is queued locally first, then pushed.">
         <div className="grid gap-2 sm:grid-cols-2">
