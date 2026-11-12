@@ -68,6 +68,7 @@
   html {
     background: rgb(var(--bg));
     -webkit-text-size-adjust: 100%;
+    font-size: 18px;
   }
 
   body {
@@ -94,6 +95,7 @@
 
   button {
     touch-action: manipulation;
+    font-size: 18px;
   }
 }
 
@@ -103,7 +105,7 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-[13px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-lg font-medium transition-colors disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-primary {
@@ -127,7 +129,7 @@
   }
 
   .input {
-    @apply w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-[13.5px] text-ink placeholder:text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15;
+    @apply w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-lg text-ink placeholder:text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15;
   }
 
   .select {
@@ -138,15 +140,15 @@
   }
 
   .label {
-    @apply mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.09em] text-faint;
+    @apply mb-1.5 block text-lg font-semibold uppercase tracking-[0.09em] text-faint;
   }
 
   .chip {
-    @apply inline-flex items-center gap-1 rounded-md border border-line bg-surface-2 px-1.5 py-0.5 text-[11px] leading-[16px] text-muted;
+    @apply inline-flex items-center gap-1 rounded-md border border-line bg-surface-2 px-1.5 py-0.5 text-base leading-[16px] text-muted;
   }
 
   .navlink {
-    @apply flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13.5px] text-body transition-colors hover:bg-surface-3;
+    @apply flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-lg text-body transition-colors hover:bg-surface-3;
   }
 
   .navlink-active {
@@ -154,27 +156,27 @@
   }
 
   .section-title {
-    @apply text-[10.5px] font-semibold uppercase tracking-[0.1em] text-faint;
+    @apply text-lg font-semibold uppercase tracking-[0.1em] text-faint;
   }
 
   .h1 {
-    @apply text-[23px] font-semibold tracking-[-0.02em];
+    @apply text-3xl font-semibold tracking-[-0.02em];
   }
 
   .h2 {
-    @apply text-[15px] font-semibold tracking-[-0.01em];
+    @apply text-2xl font-semibold tracking-[-0.01em];
   }
 
   .prose-note {
-    @apply text-[14px] leading-[1.7] text-body;
+    @apply text-lg leading-relaxed text-body;
   }
 
   .prose-note h2 {
-    @apply mb-2 mt-5 text-[16px] font-semibold text-ink;
+    @apply mb-2 mt-5 text-xl font-semibold text-ink;
   }
 
   .prose-note h3 {
-    @apply mb-1.5 mt-4 text-[14px] font-semibold text-ink;
+    @apply mb-1.5 mt-4 text-lg font-semibold text-ink;
   }
 
   .prose-note ul {
@@ -190,11 +192,11 @@
   }
 
   .prose-note code {
-    @apply rounded bg-surface-2 px-1 py-0.5 font-mono text-[13px] text-formula;
+    @apply rounded bg-surface-2 px-1 py-0.5 font-mono text-base text-formula;
   }
 
   .formula {
-    @apply font-mono text-[13.5px] leading-relaxed text-formula;
+    @apply font-mono text-lg leading-relaxed text-formula;
   }
 }
 

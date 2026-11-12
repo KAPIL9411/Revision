@@ -103,8 +103,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[12.5px] text-muted">{greeting()},</p>
-          <h1 className="mt-0.5 truncate text-[25px] font-semibold leading-tight tracking-[-0.03em]">
+          <p className="text-lg text-muted">{greeting()},</p>
+          <h1 className="mt-0.5 truncate text-2xl font-semibold leading-tight tracking-[-0.03em]">
             {name ?? 'let’s revise'}
           </h1>
         </div>
@@ -124,7 +124,7 @@ export default function DashboardPage() {
 
       <Link
         href="/search"
-        className="flex items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-3 text-[13px] text-muted transition-colors hover:border-line-strong"
+        className="flex items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-3 text-lg text-muted transition-colors hover:border-line-strong"
       >
         <Search className="h-4 w-4 shrink-0" />
         <span className="truncate">Search questions, chapters, formulas</span>
@@ -142,17 +142,17 @@ export default function DashboardPage() {
           />
           <div className="relative flex h-full min-h-[200px] flex-col justify-between gap-6 md:min-h-[260px]">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-accent/60">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-on-accent/60">
                 {isEmpty ? 'Start here' : 'Continue revision'}
               </p>
-              <h2 className="mt-2 text-[23px] font-semibold leading-tight tracking-[-0.02em]">
+              <h2 className="mt-2 text-2xl font-semibold leading-tight tracking-[-0.02em]">
                 {isEmpty
                   ? 'Capture your first question'
                   : data.continueTarget
                     ? data.continueTarget.chapter.name
                     : 'Pick a chapter to begin'}
               </h2>
-              <p className="mt-1.5 max-w-[36ch] text-[12.5px] leading-relaxed text-on-accent/70">
+              <p className="mt-1.5 max-w-[36ch] text-lg leading-relaxed text-on-accent/70">
                 {isEmpty
                   ? 'Paste a screenshot, file it into a chapter, and your revision history starts here.'
                   : data.continueTarget
@@ -208,21 +208,21 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="section-title">Today</p>
-              <p className="mt-2 text-[26px] font-semibold leading-none tracking-[-0.03em]">
+              <p className="mt-2 text-3xl font-semibold leading-none tracking-[-0.03em]">
                 {data.todayRevised}
                 <span className="ml-1.5 text-[12px] font-normal text-muted">/ {target} revised</span>
               </p>
             </div>
             <Link
               href="/settings"
-              className="rounded-full border border-line px-2.5 py-1 text-[10.5px] text-muted transition-colors hover:text-ink"
+              className="rounded-full border border-line px-2.5 py-1 text-base text-muted transition-colors hover:text-ink"
             >
               goal
             </Link>
           </div>
           <div className="mt-4">
             <ProgressBar value={data.todayRevised} total={target} />
-            <p className="mt-2.5 text-[11.5px] leading-relaxed text-muted">
+            <p className="mt-2.5 text-lg leading-relaxed text-muted">
               {remaining === 0
                 ? 'Goal reached. Anything more is a bonus.'
                 : `${remaining} question${remaining === 1 ? '' : 's'} left to hit today's target.`}
@@ -237,7 +237,7 @@ export default function DashboardPage() {
               <Link
                 key={href}
                 href={href}
-                className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 px-2 py-1 text-[10.5px] text-muted transition-colors hover:text-ink"
+                className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 px-2 py-1 text-sm text-muted transition-colors hover:text-ink"
               >
                 <Icon className="h-2.5 w-2.5" /> {label}
               </Link>
@@ -248,8 +248,8 @@ export default function DashboardPage() {
 
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold tracking-[-0.01em]">Recently added</h2>
-          <Link href="/inbox" className="inline-flex items-center gap-0.5 text-[12px] text-muted hover:text-ink">
+          <h2 className="text-lg font-semibold tracking-[-0.01em]">Recently added</h2>
+          <Link href="/inbox" className="inline-flex items-center gap-0.5 text-base text-muted hover:text-ink">
             See all <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -260,9 +260,9 @@ export default function DashboardPage() {
             ))}
             <button
               onClick={() => setCaptureOpen(true)}
-              className="grid aspect-[4/5] w-[33.333%] shrink-0 place-items-center rounded-[22px] border border-dashed border-line-strong text-muted transition-colors hover:text-ink sm:w-[calc(50%-0.375rem)]"
+              className="grid aspect-[4/5] w-[33.333%] shrink-0 place-items-center rounded-[22px] border border-dashed border-line-strong text-base transition-colors hover:text-ink sm:w-[calc(50%-0.375rem)]"
             >
-              <span className="flex flex-col items-center gap-1.5 text-[11px]">
+              <span className="flex flex-col items-center gap-1.5 text-base">
                 <Plus className="h-5 w-5" /> Add
               </span>
             </button>
@@ -283,8 +283,8 @@ export default function DashboardPage() {
       <section className="grid gap-3 lg:grid-cols-[1.35fr_1fr]">
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold tracking-[-0.01em]">Subject progress</h2>
-            <Link href="/subjects" className="text-[12px] text-muted hover:text-ink">
+            <h2 className="text-lg font-semibold tracking-[-0.01em]">Subject progress</h2>
+            <Link href="/subjects" className="text-base text-muted hover:text-ink">
               Library
             </Link>
           </div>
@@ -295,12 +295,12 @@ export default function DashboardPage() {
                 href={`/subjects/${row.subject.id}`}
                 className="block rounded-2xl border border-line bg-surface px-4 py-3 transition-colors hover:border-line-strong"
               >
-                <div className="flex items-center justify-between text-[12.5px]">
+                <div className="flex items-center justify-between text-base">
                   <span className="flex items-center gap-2 font-medium">
                     <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: row.subject.color }} />
                     {row.subject.name}
                   </span>
-                  <span className="tabular-nums text-[11.5px] text-muted">
+                  <span className="tabular-nums text-base text-muted">
                     {row.revised}/{row.total}
                   </span>
                 </div>
@@ -314,8 +314,8 @@ export default function DashboardPage() {
 
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold tracking-[-0.01em]">Recently revised</h2>
-            <Link href="/formulas" className="inline-flex items-center gap-1 text-[12px] text-muted hover:text-ink">
+            <h2 className="text-lg font-semibold tracking-[-0.01em]">Recently revised</h2>
+            <Link href="/formulas" className="inline-flex items-center gap-1 text-base text-muted hover:text-ink">
               <Sigma className="h-3 w-3" /> Formulas
             </Link>
           </div>
@@ -345,10 +345,10 @@ export default function DashboardPage() {
             >
               <Flag className="h-4 w-4 text-warn" />
               <div className="min-w-0">
-                <p className="text-[12.5px] font-medium">Revise difficult questions</p>
-                <p className="text-[11.5px] text-muted">flagged while revising</p>
+                <p className="text-base font-medium">Revise difficult questions</p>
+                <p className="text-base text-muted">flagged while revising</p>
               </div>
-              <ArrowRight className="ml-auto h-3.5 w-3.5 text-faint" />
+              <ArrowRight className="ml-auto h-5 w-5 text-faint" />
             </Link>
           ) : null}
         </div>
