@@ -3,269 +3,348 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   ArrowRight,
-  BookOpen,
-  CalendarDays,
+  Bookmark,
+  ChevronRight,
   Flag,
   Inbox,
   Play,
   Plus,
+  Search,
   Sigma,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
-import { QuestionCard } from '@/components/QuestionCard'
+import { useEffect, useState } from 'react'
 import { QuestionForm } from '@/components/QuestionForm'
 import { QuestionSheet } from '@/components/QuestionSheet'
-import { Button, EmptyState, ProgressBar, Sheet, Spinner, StatTile } from '@/components/ui'
+import { SyncBadge } from '@/components/shell/Sidebar'
+import { ThemeQuickToggle } from '@/components/ThemeToggle'
+import { Button, EmptyState, ProgressBar, Sheet, Spinner } from '@/components/ui'
 import { getMeta } from '@/lib/db'
-import { useDashboard } from '@/lib/hooks'
-import { relativeTime } from '@/lib/utils'
+import { useAttachmentUrl, useDashboard, useQuestionAttachments } from '@/lib/hooks'
+import { getSupabase } from '@/lib/supabase'
+import type { Question } from '@/lib/types'
+import { cn, relativeTime } from '@/lib/utils'
+
+function greeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function useViewerName() {
+  const [name, setName] = useState<string | null>(null)
+  useEffect(() => {
+    const supabase = getSupabase()
+    if (!supabase) return
+    let cancelled = false
+    void supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return
+      const user = data.session?.user
+      const meta = (user?.user_metadata ?? {}) as { full_name?: string; name?: string }
+      const label = meta.full_name ?? meta.name ?? null
+      setName(label ? label.trim().split(' ')[0] : null)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return name
+}
+
+/** Big rounded tile for the horizontal rail. */
+function QuestionTile({ question, onOpen }: { question: Question; onOpen: () => void }) {
+  const attachments = useQuestionAttachments(question.id)
+  const image = attachments?.find((row) => row.kind === 'question_image') ?? null
+  const url = useAttachmentUrl(image)
+  const preview = question.questionText.replace(/\s+/g, ' ').trim()
+
+  return (
+    <button
+      onClick={onOpen}
+      className="group relative aspect-[4/5] w-[152px] shrink-0 overflow-hidden rounded-[22px] border border-line bg-surface-2 text-left transition-transform active:scale-[0.98]"
+    >
+      {url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_0%_0%,rgb(var(--accent)/0.18),transparent_65%)] p-3.5 pb-10">
+          <p className="line-clamp-6 text-[12.5px] leading-snug text-ink">{preview || 'Photo question'}</p>
+        </div>
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent p-3 pt-6">
+        {url ? (
+          <p className="line-clamp-2-safe text-[11.5px] font-medium leading-snug text-white">
+            {preview || 'Screenshot question'}
+          </p>
+        ) : null}
+        <p className={cn('text-[10px] text-white/70', url && 'mt-0.5')}>{relativeTime(question.createdAt)}</p>
+      </div>
+    </button>
+  )
+}
 
 export default function DashboardPage() {
   const data = useDashboard()
   const goal = useLiveQuery(async () => Number((await getMeta('dailyGoal')) ?? 15), [])
+  const name = useViewerName()
   const [captureOpen, setCaptureOpen] = useState(false)
   const [openQuestionId, setOpenQuestionId] = useState<string | null>(null)
-
-  const today = new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  })
 
   if (!data) return <Spinner label="Loading your dashboard…" />
 
   const target = goal ?? 15
   const isEmpty = data.totalQuestions === 0
+  const remaining = Math.max(0, target - data.todayRevised)
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="flex items-center gap-1.5 text-[11.5px] text-muted">
-            <CalendarDays className="h-3.5 w-3.5" /> {today}
-          </p>
-          <h1 className="h1 mt-1">Dashboard</h1>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[12.5px] text-muted">{greeting()},</p>
+          <h1 className="mt-0.5 truncate text-[25px] font-semibold leading-tight tracking-[-0.03em]">
+            {name ?? 'let’s revise'}
+          </h1>
         </div>
-        <div className="flex gap-2">
-          <Link href="/subjects" className="btn-secondary">
-            <BookOpen className="h-3.5 w-3.5" /> Library
+        <div className="flex shrink-0 items-center gap-1">
+          <SyncBadge compact />
+          <ThemeQuickToggle />
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            className="grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-line bg-surface-2"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/ssc-emblem.webp" alt="" className="h-7 w-auto" />
           </Link>
-          <Button variant="primary" onClick={() => setCaptureOpen(true)}>
-            <Plus className="h-3.5 w-3.5" /> New question
-          </Button>
         </div>
       </header>
 
-      {isEmpty ? (
-        <section className="card overflow-hidden">
-          <div className="border-b border-line bg-surface-2 px-6 py-8">
-            <p className="section-title">The core loop</p>
-            <h2 className="mt-2 text-[19px] font-semibold tracking-[-0.02em]">
-              Capture → assign a chapter → attach the solution → revise.
-            </h2>
-            <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted">
-              Your vault is empty. Start with a question from today&apos;s mock, drop it into its chapter from the
-              Inbox, and photograph your handwritten solution. Everything is stored on this device first and syncs
-              when Supabase is connected.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button variant="primary" onClick={() => setCaptureOpen(true)}>
-                <Plus className="h-3.5 w-3.5" /> Add your first question
-              </Button>
-              <Link href="/inbox" className="btn-secondary">
-                Open the Inbox
-              </Link>
-              <Link href="/subjects" className="btn-ghost">
-                Browse chapters
-              </Link>
-            </div>
-          </div>
-          <div className="grid gap-0 divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {[
-              ['1. Capture', 'Paste the question or snap it. Partial entries are fine.'],
-              ['2. Place', 'Drag it into Percentage, or pick a chapter on your phone.'],
-              ['3. Revise', 'Solutions stay hidden until you reveal them.'],
-            ].map(([title, body]) => (
-              <div key={title} className="px-5 py-4">
-                <p className="text-[12.5px] font-medium">{title}</p>
-                <p className="mt-1 text-[12px] leading-relaxed text-muted">{body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <Link
+        href="/search"
+        className="flex items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-3 text-[13px] text-muted transition-colors hover:border-line-strong"
+      >
+        <Search className="h-4 w-4 shrink-0" />
+        <span className="truncate">Search questions, chapters, formulas</span>
+      </Link>
 
-      <section className="grid gap-3 lg:grid-cols-[1.4fr_1fr]">
-        <div className="card flex flex-col justify-between gap-4 px-5 py-4">
-          <div>
-            <p className="section-title">Continue revision</p>
-            {data.continueTarget ? (
-              <>
-                <h2 className="mt-2 text-[18px] font-semibold tracking-[-0.02em]">
-                  {data.continueTarget.chapter.name}
-                </h2>
-                <p className="mt-0.5 text-[12.5px] text-muted">
-                  {data.continueTarget.subject?.name ?? 'Chapter'}
-                  {data.continueTarget.chapter.parentId ? ' · sub-chapter' : ''}
-                </p>
-              </>
-            ) : (
-              <>
-                <h2 className="mt-2 text-[18px] font-semibold tracking-[-0.02em]">Pick a chapter to begin</h2>
-                <p className="mt-0.5 text-[12.5px] text-muted">
-                  Open any chapter and you will land back here next time.
-                </p>
-              </>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {data.continueTarget ? (
-              <>
-                <Link href={`/chapters/${data.continueTarget.chapter.id}/revise`} className="btn-primary">
-                  <Play className="h-3.5 w-3.5" /> Start revising
+      <section className="grid gap-3 lg:grid-cols-[1.45fr_1fr]">
+        <div className="relative overflow-hidden rounded-[26px] bg-[#101014] p-5 text-white shadow-pop">
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage:
+                'radial-gradient(120% 110% at 12% 0%, rgb(var(--accent) / 0.55), transparent 62%), radial-gradient(90% 90% at 100% 100%, rgb(var(--accent) / 0.28), transparent 58%)',
+            }}
+            aria-hidden
+          />
+          <div className="relative flex h-full min-h-[186px] flex-col justify-between gap-6">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+                {isEmpty ? 'Start here' : 'Continue revision'}
+              </p>
+              <h2 className="mt-2 text-[23px] font-semibold leading-tight tracking-[-0.02em]">
+                {isEmpty
+                  ? 'Capture your first question'
+                  : data.continueTarget
+                    ? data.continueTarget.chapter.name
+                    : 'Pick a chapter to begin'}
+              </h2>
+              <p className="mt-1.5 max-w-[36ch] text-[12.5px] leading-relaxed text-white/70">
+                {isEmpty
+                  ? 'Paste a screenshot, file it into a chapter, and your revision history starts here.'
+                  : data.continueTarget
+                    ? `${data.continueTarget.subject?.name ?? 'Chapter'} · ${data.pending} question${data.pending === 1 ? '' : 's'} waiting for a first revision`
+                    : 'Every chapter you open becomes your continue target.'}
+              </p>
+            </div>
+
+            <div className="flex items-end justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-white/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/brand/ssc-emblem.webp" alt="" className="h-7 w-auto" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-[12.5px] font-medium">
+                    {isEmpty
+                      ? 'SSC Revision Vault'
+                      : (data.continueTarget?.subject?.name ?? data.continueTarget?.chapter.name ?? 'Library')}
+                  </p>
+                  <p className="truncate text-[11px] text-white/60">
+                    {isEmpty ? '99 chapters ready' : `${data.totalQuestions} saved · ${data.revisedQuestions} revised`}
+                  </p>
+                </div>
+              </div>
+              {isEmpty ? (
+                <button
+                  onClick={() => setCaptureOpen(true)}
+                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[12.5px] font-semibold text-[#101014]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Capture
+                </button>
+              ) : data.continueTarget ? (
+                <Link
+                  href={`/chapters/${data.continueTarget.chapter.id}/revise`}
+                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[12.5px] font-semibold text-[#101014]"
+                >
+                  <Play className="h-3 w-3 fill-current" /> Start
                 </Link>
-                <Link href={`/chapters/${data.continueTarget.chapter.id}`} className="btn-secondary">
-                  Open chapter
+              ) : (
+                <Link
+                  href="/subjects"
+                  className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-[12.5px] font-semibold text-[#101014]"
+                >
+                  Library <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
-              </>
-            ) : (
-              <Link href="/subjects" className="btn-primary">
-                Browse chapters <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            )}
-            {data.inboxCount > 0 ? (
-              <Link href="/inbox" className="btn-ghost">
-                <Inbox className="h-3.5 w-3.5" /> {data.inboxCount} to file
-              </Link>
-            ) : null}
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="card px-5 py-4">
+        <div className="card flex flex-col justify-between rounded-[26px] px-5 py-4">
           <div className="flex items-start justify-between">
             <div>
               <p className="section-title">Today</p>
-              <p className="mt-2 text-[22px] font-semibold leading-none tracking-[-0.02em]">
+              <p className="mt-2 text-[26px] font-semibold leading-none tracking-[-0.03em]">
                 {data.todayRevised}
-                <span className="ml-1 text-[12px] font-normal text-muted">/ {target} revised</span>
+                <span className="ml-1.5 text-[12px] font-normal text-muted">/ {target} revised</span>
               </p>
             </div>
             <Link
               href="/settings"
-              className="text-[11px] text-muted underline decoration-dotted underline-offset-2 hover:text-ink"
+              className="rounded-full border border-line px-2.5 py-1 text-[10.5px] text-muted transition-colors hover:text-ink"
             >
               goal
             </Link>
           </div>
-          <div className="mt-3">
+          <div className="mt-4">
             <ProgressBar value={data.todayRevised} total={target} />
+            <p className="mt-2.5 text-[11.5px] leading-relaxed text-muted">
+              {remaining === 0
+                ? 'Goal reached. Anything more is a bonus.'
+                : `${remaining} question${remaining === 1 ? '' : 's'} left to hit today's target.`}
+            </p>
           </div>
-          <p className="mt-2 text-[11.5px] text-muted">
-            {data.todayRevised >= target
-              ? 'Daily goal reached. Anything more is a bonus.'
-              : `${Math.max(0, target - data.todayRevised)} questions left to hit today's target.`}
-          </p>
+          <div className="mt-4 flex gap-1.5">
+            {[
+              { href: '/search?difficult=1', label: `${data.difficult} difficult`, icon: Flag },
+              { href: '/search?bookmarked=1', label: `${data.bookmarked} saved`, icon: Bookmark },
+              { href: '/inbox', label: `${data.inboxCount} to file`, icon: Inbox },
+            ].map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 px-2 py-1 text-[10.5px] text-muted transition-colors hover:text-ink"
+              >
+                <Icon className="h-2.5 w-2.5" /> {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label="Saved questions" value={data.totalQuestions} hint={`${data.revisedQuestions} revised at least once`} />
-        <StatTile label="Pending revision" value={data.pending} hint="never revised yet" />
-        <StatTile label="Difficult" value={data.difficult} hint="flagged while revising" />
-        <StatTile label="Bookmarked" value={data.bookmarked} hint="saved for a second pass" />
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold tracking-[-0.01em]">Recently added</h2>
+          <Link href="/inbox" className="inline-flex items-center gap-0.5 text-[12px] text-muted hover:text-ink">
+            See all <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        {data.recentQuestions.length ? (
+          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 no-scrollbar sm:mx-0 sm:px-0">
+            {data.recentQuestions.map((question) => (
+              <QuestionTile key={question.id} question={question} onOpen={() => setOpenQuestionId(question.id)} />
+            ))}
+            <button
+              onClick={() => setCaptureOpen(true)}
+              className="grid aspect-[4/5] w-[152px] shrink-0 place-items-center rounded-[22px] border border-dashed border-line-strong text-muted transition-colors hover:text-ink"
+            >
+              <span className="flex flex-col items-center gap-1.5 text-[11px]">
+                <Plus className="h-5 w-5" /> Add
+              </span>
+            </button>
+          </div>
+        ) : (
+          <EmptyState
+            title="Nothing captured yet"
+            description="Paste a screenshot and it lands here, on this device first."
+            action={
+              <Button variant="primary" onClick={() => setCaptureOpen(true)}>
+                <Plus className="h-3.5 w-3.5" /> Capture a question
+              </Button>
+            }
+          />
+        )}
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="h2">Recently added</h2>
-            <Link href="/search" className="text-[12px] text-muted hover:text-ink">
-              Search all
+      <section className="grid gap-3 lg:grid-cols-[1.35fr_1fr]">
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[15px] font-semibold tracking-[-0.01em]">Subject progress</h2>
+            <Link href="/subjects" className="text-[12px] text-muted hover:text-ink">
+              Library
             </Link>
           </div>
-          {data.recentQuestions.length ? (
-            <div className="space-y-2">
-              {data.recentQuestions.slice(0, 4).map((question) => (
-                <QuestionCard key={question.id} question={question} onOpen={() => setOpenQuestionId(question.id)} compact />
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              title="No questions captured yet"
-              description="Use Quick capture to add one in a few seconds."
-              action={
-                <Button variant="primary" onClick={() => setCaptureOpen(true)}>
-                  <Plus className="h-3.5 w-3.5" /> Add question
-                </Button>
-              }
-            />
-          )}
+          <div className="space-y-2">
+            {data.subjectProgress.map((row) => (
+              <Link
+                key={row.subject.id}
+                href={`/subjects/${row.subject.id}`}
+                className="block rounded-2xl border border-line bg-surface px-4 py-3 transition-colors hover:border-line-strong"
+              >
+                <div className="flex items-center justify-between text-[12.5px]">
+                  <span className="flex items-center gap-2 font-medium">
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: row.subject.color }} />
+                    {row.subject.name}
+                  </span>
+                  <span className="tabular-nums text-[11.5px] text-muted">
+                    {row.revised}/{row.total}
+                  </span>
+                </div>
+                <div className="mt-2">
+                  <ProgressBar value={row.revised} total={row.total} />
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <h2 className="h2 mb-2.5">Subject progress</h2>
-            <div className="card divide-y divide-line">
-              {data.subjectProgress.map((row) => (
-                <Link
-                  key={row.subject.id}
-                  href={`/subjects/${row.subject.id}`}
-                  className="block px-4 py-3 transition-colors hover:bg-surface-2"
-                >
-                  <div className="flex items-center justify-between text-[12.5px]">
-                    <span className="flex items-center gap-2 font-medium">
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: row.subject.color }} />
-                      {row.subject.name}
-                    </span>
-                    <span className="tabular-nums text-[11.5px] text-muted">
-                      {row.revised}/{row.total}
-                    </span>
-                  </div>
-                  <div className="mt-2">
-                    <ProgressBar value={row.revised} total={row.total} />
-                  </div>
-                </Link>
-              ))}
-            </div>
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[15px] font-semibold tracking-[-0.01em]">Recently revised</h2>
+            <Link href="/formulas" className="inline-flex items-center gap-1 text-[12px] text-muted hover:text-ink">
+              <Sigma className="h-3 w-3" /> Formulas
+            </Link>
           </div>
-
-          <div>
-            <div className="mb-2.5 flex items-center justify-between">
-              <h2 className="h2">Recently revised</h2>
-              <Link href="/formulas" className="flex items-center gap-1 text-[12px] text-muted hover:text-ink">
-                <Sigma className="h-3 w-3" /> Formulas
-              </Link>
-            </div>
-            <div className="card divide-y divide-line">
-              {data.recentChapters.length ? (
-                data.recentChapters.map((row) => (
-                  <Link
-                    key={row.chapter.id}
-                    href={`/chapters/${row.chapter.id}`}
-                    className="flex items-center justify-between gap-2 px-4 py-2.5 text-[12.5px] transition-colors hover:bg-surface-2"
-                  >
-                    <span className="truncate">{row.chapter.name}</span>
-                    <span className="shrink-0 text-[11px] text-muted">{relativeTime(row.revisedAt)}</span>
-                  </Link>
-                ))
-              ) : (
-                <p className="px-4 py-4 text-[12px] text-muted">
-                  Nothing revised yet. Mark questions as revised and they appear here.
-                </p>
-              )}
-            </div>
+          <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            {data.recentChapters.length ? (
+              data.recentChapters.map((row) => (
+                <Link
+                  key={row.chapter.id}
+                  href={`/chapters/${row.chapter.id}`}
+                  className="flex items-center justify-between gap-2 border-b border-line px-4 py-2.5 text-[12.5px] transition-colors last:border-b-0 hover:bg-surface-2"
+                >
+                  <span className="truncate">{row.chapter.name}</span>
+                  <span className="shrink-0 text-[11px] text-muted">{relativeTime(row.revisedAt)}</span>
+                </Link>
+              ))
+            ) : (
+              <p className="px-4 py-4 text-[12px] text-muted">
+                Nothing revised yet. Revise a chapter and it lands here.
+              </p>
+            )}
           </div>
 
           {data.difficult > 0 ? (
             <Link
               href="/search?difficult=1"
-              className="card flex items-center gap-3 px-4 py-3 transition-colors hover:border-line-strong"
+              className="mt-2 flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 transition-colors hover:border-line-strong"
             >
               <Flag className="h-4 w-4 text-warn" />
               <div className="min-w-0">
                 <p className="text-[12.5px] font-medium">Revise difficult questions</p>
-                <p className="text-[11.5px] text-muted">{data.difficult} flagged across chapters</p>
+                <p className="text-[11.5px] text-muted">flagged while revising</p>
               </div>
               <ArrowRight className="ml-auto h-3.5 w-3.5 text-faint" />
             </Link>
@@ -277,7 +356,7 @@ export default function DashboardPage() {
         open={captureOpen}
         onClose={() => setCaptureOpen(false)}
         title="New question"
-        description="Only the question is required — fill the rest later."
+        description="Paste a screenshot — text is optional."
         size="md"
       >
         <QuestionForm compact onSaved={() => setCaptureOpen(false)} />
