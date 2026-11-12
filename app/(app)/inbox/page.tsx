@@ -16,9 +16,9 @@ function DropTarget({ chapterId, name, nested }: { chapterId: string; name: stri
     <div
       ref={setNodeRef}
       className={cn(
-        'rounded-md border border-transparent px-2 py-[5px] text-[12.5px] text-[#55554F] transition-colors',
+        'rounded-md border border-transparent px-2 py-[5px] text-[12.5px] text-body transition-colors',
         nested && 'pl-6 text-[12px]',
-        isOver ? 'border-accent/40 bg-accent-soft text-accent' : 'hover:bg-[#F3F3EF]',
+        isOver ? 'border-accent/40 bg-accent-soft text-accent' : 'hover:bg-surface-2',
       )}
       data-chapter-id={chapterId}
     >
@@ -98,7 +98,7 @@ export default function InboxPage() {
             <p className="section-title">File into chapter</p>
             <p className="mb-2 mt-1 text-[11px] text-muted">Drag a question onto a chapter.</p>
             <div className="relative mb-2">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#A3A39D]" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-faint" />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -109,7 +109,7 @@ export default function InboxPage() {
             <div className="thin-scroll max-h-[calc(100dvh-220px)] space-y-3 overflow-y-auto pr-1">
               {grouped.map(([subject, rows]) => (
                 <div key={subject}>
-                  <p className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[#A3A39D]">
+                  <p className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-faint">
                     {subject}
                   </p>
                   <div className="space-y-px">

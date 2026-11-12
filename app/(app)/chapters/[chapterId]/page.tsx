@@ -292,11 +292,11 @@ export default function ChapterPage() {
               '-mb-px border-b-2 px-2.5 pb-2 text-[13px] transition-colors',
               tab === item.key
                 ? 'border-accent font-medium text-ink'
-                : 'border-transparent text-[#77776F] hover:text-ink',
+                : 'border-transparent text-muted hover:text-ink',
             )}
           >
             {item.label}
-            {item.count ? <span className="ml-1.5 text-[11px] text-[#A3A39D]">{item.count}</span> : null}
+            {item.count ? <span className="ml-1.5 text-[11px] text-faint">{item.count}</span> : null}
           </button>
         ))}
       </div>
@@ -327,7 +327,7 @@ export default function ChapterPage() {
                     'shrink-0 rounded-full border px-2.5 py-1 text-[12px] transition-colors',
                     filter === option.value
                       ? 'border-accent bg-accent-soft font-medium text-accent'
-                      : 'border-line bg-white text-[#6B6B66] hover:border-[#CFCFC8]',
+                      : 'border-line bg-surface text-muted hover:border-line-strong',
                   )}
                 >
                   {option.label}
@@ -423,7 +423,7 @@ export default function ChapterPage() {
                       trigger={
                         <button
                           aria-label={`Actions for ${formula.title}`}
-                          className="rounded p-1 text-[#A3A39D] hover:bg-[#F3F3EF] hover:text-ink"
+                          className="rounded p-1 text-faint hover:bg-surface-2 hover:text-ink"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
@@ -491,7 +491,7 @@ export default function ChapterPage() {
                 <button
                   onClick={() => setTopicDelete({ id: topic.id, name: topic.name })}
                   aria-label={`Delete topic ${topic.name}`}
-                  className="text-[#A3A39D] hover:text-[#B42318]"
+                  className="text-faint hover:text-danger"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -606,7 +606,7 @@ export default function ChapterPage() {
         }}
       />
 
-      <p className="pb-2 text-[11px] text-[#B3B3AC]">
+      <p className="pb-2 text-[11px] text-faint">
         Chapter last revised {stats?.lastRevisedAt ? formatDate(stats.lastRevisedAt) : 'never'} ·{' '}
         {stats?.incorrect ?? 0} marked incorrect
       </p>

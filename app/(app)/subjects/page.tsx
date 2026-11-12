@@ -27,14 +27,14 @@ export default function LibraryPage() {
               <Link
                 key={group.subject.id}
                 href={`/subjects/${group.subject.id}`}
-                className="card p-4 transition-colors hover:border-[#D8D8D2]"
+                className="card p-4 transition-colors hover:border-line-strong"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: group.subject.color }} />
                     <h2 className="text-[14px] font-semibold">{group.subject.name}</h2>
                   </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-[#B3B3AC]" />
+                  <ArrowRight className="h-3.5 w-3.5 text-faint" />
                 </div>
                 <p className="mt-1 text-[11.5px] text-muted">
                   {chapterCount} chapters · {group.count} question{group.count === 1 ? '' : 's'}

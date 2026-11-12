@@ -20,6 +20,7 @@ import { seedIfNeeded } from '@/lib/seed'
 import { moveQuestion } from '@/lib/store'
 import { getSupabase, isEmailAllowed, signOut, supabaseEnabled } from '@/lib/supabase'
 import { startSync } from '@/lib/sync'
+import { applyTheme, readThemeChoice } from '@/lib/theme'
 import { useSyncState } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 import { QuickCapture } from './QuickCapture'
@@ -140,6 +141,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, [router])
 
+  useEffect(() => {
+    applyTheme(readThemeChoice())
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    const onChange = () => {
+      if (readThemeChoice() === 'system') applyTheme('system')
+    }
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [])
+
   // A screenshot pasted anywhere opens capture with the photo already attached.
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -232,7 +243,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {!isFocusMode ? <MobileHeader /> : null}
 
         {!sync.online ? (
-          <div className="border-b border-[#EDDFC5] bg-[#FBF3E6] px-4 py-1.5 text-center text-[11.5px] text-[#8A5A12]">
+          <div className="border-b border-warn-line bg-warn-soft px-4 py-1.5 text-center text-[11.5px] text-warn">
             Offline — your work stays available on this device and syncs when you reconnect.
           </div>
         ) : null}
@@ -254,12 +265,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       {panelOpen && !isFocusMode ? (
         <>
           <div
-            className="fixed inset-0 z-40 hidden bg-[#1B1B18]/20 lg:block"
+            className="fixed inset-0 z-40 hidden bg-black/25 lg:block"
             onClick={() => setPanelOpen(false)}
             aria-hidden
           />
           <aside
-            className="fixed right-0 top-0 z-50 hidden h-dvh w-[392px] flex-col border-l border-line bg-white lg:flex"
+            className="fixed right-0 top-0 z-50 hidden h-dvh w-[392px] flex-col border-l border-line bg-surface lg:flex"
             aria-label="Quick capture panel"
           >
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
@@ -269,7 +280,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
               <button
                 onClick={() => setPanelOpen(false)}
-                className="rounded-md p-1.5 text-[#6B6B66] hover:bg-[#EFEFEA]"
+                className="rounded-md p-1.5 text-muted hover:bg-surface-3"
                 aria-label="Close capture panel"
               >
                 <PanelRightClose className="h-4 w-4" />
@@ -307,7 +318,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <DragOverlay dropAnimation={null}>
         {activeDrag ? (
-          <div className="max-w-[280px] rounded-lg border border-line bg-white px-3 py-2 text-[12.5px] leading-snug text-[#33332F] shadow-pop">
+          <div className="max-w-[280px] rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] leading-snug text-body shadow-pop">
             <span className="line-clamp-2-safe">{activeDrag.text || 'Photo question'}</span>
             <span className="mt-1 block text-[10.5px] text-accent">Drop on a chapter</span>
           </div>
@@ -318,7 +329,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-[13px] focus:shadow-pop"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:text-[13px] focus:shadow-pop"
       >
         Skip to content
       </a>

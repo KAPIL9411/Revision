@@ -21,7 +21,7 @@ function SolutionImage({
   const fullUrl = useAttachmentUrl(attachment)
   const url = thumbUrl ?? fullUrl
   return (
-    <figure className="group relative overflow-hidden rounded-lg border border-line bg-white">
+    <figure className="group relative overflow-hidden rounded-lg border border-line bg-surface">
       {url ? (
         <button type="button" onClick={() => onOpen(fullUrl ?? url)} className="block w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -40,7 +40,7 @@ function SolutionImage({
         type="button"
         onClick={() => onDelete(attachment)}
         aria-label="Delete solution photo"
-        className="absolute right-1.5 top-1.5 rounded-md border border-line bg-white/95 p-1.5 text-[#8A8A85] opacity-0 transition-opacity hover:text-[#B42318] focus-visible:opacity-100 group-hover:opacity-100"
+        className="absolute right-1.5 top-1.5 rounded-md border border-line bg-surface/95 p-1.5 text-faint opacity-0 transition-opacity hover:text-danger focus-visible:opacity-100 group-hover:opacity-100"
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>
@@ -131,10 +131,10 @@ export function SolutionBlock({
 
   if (!revealed) {
     return (
-      <div className={cn('rounded-lg border border-line bg-[#FCFCFA] px-3.5 py-3', compact && 'px-3 py-2.5')}>
+      <div className={cn('rounded-lg border border-line bg-surface-2 px-3.5 py-3', compact && 'px-3 py-2.5')}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-[12.5px] font-medium text-[#4A4A46]">Solution</p>
+            <p className="text-[12.5px] font-medium text-body">Solution</p>
             <p className="mt-0.5 text-[11.5px] text-muted">
               {hasSolution ? 'Hidden until you reveal it.' : 'No solution attached yet.'}
             </p>
@@ -179,9 +179,9 @@ export function SolutionBlock({
   }
 
   return (
-    <div className="rounded-lg border border-line bg-white">
+    <div className="rounded-lg border border-line bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-3.5 py-2.5">
-        <p className="text-[12.5px] font-medium text-[#4A4A46]">
+        <p className="text-[12.5px] font-medium text-body">
           Solution {solutions.length ? `· ${solutions.length} photo${solutions.length === 1 ? '' : 's'}` : ''}
         </p>
         <Button variant="ghost" onClick={() => setRevealed(false)}>
@@ -221,10 +221,10 @@ export function SolutionBlock({
             </div>
           </div>
         ) : question.solutionText?.trim() ? (
-          <div className="rounded-md bg-[#F7F7F3] px-3 py-2.5">
-            <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[#33332F]">{question.solutionText}</p>
+          <div className="rounded-md bg-surface-2 px-3 py-2.5">
+            <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-body">{question.solutionText}</p>
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-[10.5px] text-[#9A9A94]">Updated {formatDate(question.updatedAt)}</span>
+              <span className="text-[10.5px] text-faint">Updated {formatDate(question.updatedAt)}</span>
               <button
                 className="inline-flex items-center gap-1 text-[11.5px] text-muted hover:text-ink"
                 onClick={() => {

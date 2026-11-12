@@ -169,7 +169,11 @@ and the result is reported (“Restored N records and M photos, K newer local re
 - **Formula Book** — every formula from every chapter, searchable, editable.
 - **Search** — instant local search plus subject, chapter, difficulty, source, bookmark, revision and date
   filters.
-- **Settings** — account, sync status and conflict resolution, daily goal, ZIP backup/restore, erase.
+- **Settings** — account, appearance, sync status and conflict resolution, daily goal, photo storage, ZIP
+  backup/restore, erase.
+- **Theme** — light, near-black dark, or follow the device. The choice is remembered per device and applied
+  before first paint, so there is no white flash. Colours are CSS-variable tokens (`bg`, `surface`, `ink`,
+  `line`, `accent`, `success`/`warn`/`danger`), so both themes share one stylesheet.
 
 ### Keyboard shortcuts (revision mode)
 

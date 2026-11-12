@@ -87,9 +87,9 @@ export function MoveChapterSheet({
       />
       <button
         onClick={() => void move(null, 'Inbox')}
-        className="mb-2 flex w-full items-center gap-2 rounded-lg border border-line px-3 py-2 text-left text-[13px] hover:bg-[#F7F7F3]"
+        className="mb-2 flex w-full items-center gap-2 rounded-lg border border-line px-3 py-2 text-left text-[13px] hover:bg-surface-2"
       >
-        <Inbox className="h-4 w-4 text-[#8A8A85]" />
+        <Inbox className="h-4 w-4 text-faint" />
         Inbox (unsorted)
         {currentChapterId === null ? <span className="ml-auto text-[11px] text-accent">current</span> : null}
       </button>
@@ -103,11 +103,11 @@ export function MoveChapterSheet({
                   key={row.chapter.id}
                   onClick={() => void move(row.chapter.id, row.chapter.name)}
                   className={cn(
-                    'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[13px] hover:bg-[#F3F3EF]',
+                    'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[13px] hover:bg-surface-2',
                     row.chapter.id === currentChapterId && 'bg-accent-soft text-accent',
                   )}
                 >
-                  {row.chapter.parentId ? <span className="pl-3 text-[#B3B3AC]">›</span> : null}
+                  {row.chapter.parentId ? <span className="pl-3 text-faint">›</span> : null}
                   {row.chapter.name}
                   {row.chapter.id === currentChapterId ? <span className="ml-auto text-[11px]">current</span> : null}
                 </button>
@@ -153,12 +153,12 @@ export function QuestionCard({
   const questionImageUrl = useAttachmentUrl(questionImage)
   const statusChip =
     revisionStatus === 'revised'
-      ? { label: 'Revised', tone: 'text-[#216A4A] bg-[#EAF4EE] border-[#CFE6D9]' }
+      ? { label: 'Revised', tone: 'text-success bg-success-soft border-success-line' }
       : revisionStatus === 'incorrect'
-        ? { label: 'Incorrect', tone: 'text-[#B42318] bg-[#FBEEEE] border-[#EFD3D3]' }
+        ? { label: 'Incorrect', tone: 'text-danger bg-danger-soft border-danger-line' }
         : revisionStatus === 'shaky'
-          ? { label: 'Shaky', tone: 'text-[#8A5A12] bg-[#FBF3E6] border-[#EDDFC5]' }
-          : { label: 'New', tone: 'text-[#5B5B55] bg-[#F3F3EF] border-[#E4E4DE]' }
+          ? { label: 'Shaky', tone: 'text-warn bg-warn-soft border-warn-line' }
+          : { label: 'New', tone: 'text-body bg-surface-2 border-line' }
 
   return (
     <div
@@ -174,7 +174,7 @@ export function QuestionCard({
           {...attributes}
           {...listeners}
           aria-label="Drag question to a chapter"
-          className="mt-0.5 hidden cursor-grab rounded p-1 text-[#C4C4BC] hover:bg-[#F3F3EF] hover:text-[#8A8A85] active:cursor-grabbing lg:block"
+          className="mt-0.5 hidden cursor-grab rounded p-1 text-faint hover:bg-surface-2 hover:text-faint active:cursor-grabbing lg:block"
         >
           <GripVertical className="h-4 w-4" />
         </button>
@@ -193,12 +193,12 @@ export function QuestionCard({
             <span className="chip">{SOURCE_LABEL[question.sourceType]}</span>
             {chapterName ? <span className="chip max-w-[160px] truncate">{chapterName}</span> : null}
             {question.isDifficult ? (
-              <span className="inline-flex items-center gap-1 rounded border border-[#EDDFC5] bg-[#FBF3E6] px-1.5 py-0.5 text-[10.5px] text-[#8A5A12]">
+              <span className="inline-flex items-center gap-1 rounded border border-warn-line bg-warn-soft px-1.5 py-0.5 text-[10.5px] text-warn">
                 <Flag className="h-2.5 w-2.5" /> Difficult
               </span>
             ) : null}
             {question.isBookmarked ? (
-              <span className="inline-flex items-center gap-1 rounded border border-[#D9E0F7] bg-[#EEF1FC] px-1.5 py-0.5 text-[10.5px] text-accent">
+              <span className="inline-flex items-center gap-1 rounded border border-accent/40 bg-accent-soft px-1.5 py-0.5 text-[10.5px] text-accent">
                 <Bookmark className="h-2.5 w-2.5 fill-current" /> Saved
               </span>
             ) : null}
@@ -211,11 +211,11 @@ export function QuestionCard({
             aria-label="Open question"
           >
             {preview ? (
-              <p className={cn('line-clamp-2-safe text-[13.5px] leading-relaxed text-[#2A2A27]', compact && 'text-[13px]')}>
+              <p className={cn('line-clamp-2-safe text-[13.5px] leading-relaxed text-ink', compact && 'text-[13px]')}>
                 {preview}
               </p>
             ) : questionImageUrl ? (
-              <div className="overflow-hidden rounded-md border border-line bg-[#F3F3EF]">
+              <div className="overflow-hidden rounded-md border border-line bg-surface-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={questionImageUrl}
@@ -225,19 +225,19 @@ export function QuestionCard({
                 />
               </div>
             ) : (
-              <p className="text-[13px] italic text-[#9A9A94]">Photo-only question</p>
+              <p className="text-[13px] italic text-faint">Photo-only question</p>
             )}
           </button>
 
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#9A9A94]">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-faint">
             {question.questionImagePath || question.questionText ? null : null}
             <span>{formatShortDate(question.createdAt)}</span>
             {solutionCount > 0 ? (
-              <span className="inline-flex items-center gap-1 text-[#6B6B66]">
+              <span className="inline-flex items-center gap-1 text-muted">
                 <ImageIcon className="h-3 w-3" /> {solutionCount} solution photo{solutionCount === 1 ? '' : 's'}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[#B08B5A]">
+              <span className="inline-flex items-center gap-1 text-warn">
                 <Camera className="h-3 w-3" /> No solution
               </span>
             )}
@@ -257,7 +257,7 @@ export function QuestionCard({
           <IconButton
             label={question.isDifficult ? 'Unmark difficult' : 'Mark difficult'}
             onClick={() => void toggleDifficult(question.id)}
-            className={question.isDifficult ? 'text-[#8A5A12]' : undefined}
+            className={question.isDifficult ? 'text-warn' : undefined}
           >
             <Flag className={cn('h-4 w-4', question.isDifficult && 'fill-current')} />
           </IconButton>

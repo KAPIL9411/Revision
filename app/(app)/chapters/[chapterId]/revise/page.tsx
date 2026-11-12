@@ -33,9 +33,9 @@ import { cn, formatDate } from '@/lib/utils'
 
 function QuestionImage({ attachment }: { attachment: Parameters<typeof useAttachmentUrl>[0] }) {
   const url = useAttachmentUrl(attachment)
-  if (!url) return <div className="h-40 w-full animate-pulse rounded-lg bg-[#F3F3EF]" />
+  if (!url) return <div className="h-40 w-full animate-pulse rounded-lg bg-surface-2" />
   return (
-    <div className="overflow-hidden rounded-lg border border-line bg-white">
+    <div className="overflow-hidden rounded-lg border border-line bg-surface">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={url}
@@ -211,11 +211,11 @@ export default function RevisionPage() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
-      <header className="safe-top sticky top-0 z-30 border-b border-line bg-[#FBFBF8]/95 backdrop-blur">
+      <header className="safe-top sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-[820px] items-center gap-2 px-3 py-2.5 sm:px-5">
           <Link
             href={`/chapters/${chapterId}`}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[12.5px] text-[#55554F] hover:bg-[#EFEFEA]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[12.5px] text-body hover:bg-surface-3"
           >
             <ChevronLeft className="h-4 w-4" /> <span className="hidden sm:inline">Chapter</span>
           </Link>
@@ -230,7 +230,7 @@ export default function RevisionPage() {
             value={filter}
             onChange={(event) => setFilter(event.target.value as RevisionFilter)}
             aria-label="Revision filter"
-            className="h-8 max-w-[132px] rounded-md border border-line bg-white px-2 text-[11.5px] text-[#55554F]"
+            className="h-8 max-w-[132px] rounded-md border border-line bg-surface px-2 text-[11.5px] text-body"
           >
             {REVISION_FILTERS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -241,7 +241,7 @@ export default function RevisionPage() {
           <Link
             href={`/chapters/${chapterId}`}
             aria-label="Exit revision"
-            className="hidden h-8 w-8 items-center justify-center rounded-md text-[#6B6B66] hover:bg-[#EFEFEA] sm:inline-flex"
+            className="hidden h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-3 sm:inline-flex"
           >
             <X className="h-4 w-4" />
           </Link>
@@ -254,7 +254,7 @@ export default function RevisionPage() {
       <div className="mx-auto flex w-full max-w-[820px] flex-1 flex-col px-3 pb-32 pt-4 sm:px-5 sm:pb-28">
         {finished ? (
           <div className="card mx-auto mt-6 w-full max-w-md p-6 text-center">
-            <div className="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-full bg-[#EAF4EE] text-[#2F7D5D]">
+            <div className="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-full bg-success-soft text-success">
               <Check className="h-5 w-5" />
             </div>
             <h1 className="text-[17px] font-semibold">Session complete</h1>
@@ -287,13 +287,13 @@ export default function RevisionPage() {
               {row?.question.sourceName ? <span className="chip max-w-[180px] truncate">{row.question.sourceName}</span> : null}
               <span className="chip">{formatDate(row?.question.questionDate)}</span>
               {row?.question.isBookmarked ? <span className="chip text-accent">Bookmarked</span> : null}
-              {row?.question.isDifficult ? <span className="chip text-[#8A5A12]">Difficult</span> : null}
+              {row?.question.isDifficult ? <span className="chip text-warn">Difficult</span> : null}
             </div>
 
             {row ? (
               <div className="card flex-1 px-4 py-4 sm:px-5">
                 {row.question.questionText.trim() ? (
-                  <p className="whitespace-pre-wrap text-[15px] leading-[1.75] text-[#242422] sm:text-[15.5px]">
+                  <p className="whitespace-pre-wrap text-[15px] leading-[1.75] text-ink sm:text-[15.5px]">
                     {row.question.questionText}
                   </p>
                 ) : (
@@ -307,7 +307,7 @@ export default function RevisionPage() {
                 ) : null}
 
                 {row.question.personalRemark?.trim() ? (
-                  <p className="mt-3 rounded-md border-l-2 border-[#D7C9A8] bg-[#FBF8F0] px-3 py-2 text-[12.5px] leading-relaxed text-[#55503F]">
+                  <p className="mt-3 rounded-md border-l-2 border-warn-line bg-warn-soft px-3 py-2 text-[12.5px] leading-relaxed text-body">
                     {row.question.personalRemark}
                   </p>
                 ) : null}
@@ -328,7 +328,7 @@ export default function RevisionPage() {
       </div>
 
       {!finished ? (
-        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 backdrop-blur">
+        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 backdrop-blur">
           <div className="mx-auto flex w-full max-w-[820px] items-center gap-2 px-3 py-2.5 sm:px-5">
             <Button variant="secondary" onClick={previous} disabled={index === 0} aria-label="Previous question">
               <ArrowLeft className="h-3.5 w-3.5" />
@@ -343,8 +343,8 @@ export default function RevisionPage() {
                 className={cn(
                   'grid h-9 w-9 place-items-center rounded-md border transition-colors',
                   row?.question.isBookmarked
-                    ? 'border-[#D9E0F7] bg-accent-soft text-accent'
-                    : 'border-line text-[#6B6B66] hover:bg-[#F7F7F3]',
+                    ? 'border-accent/40 bg-accent-soft text-accent'
+                    : 'border-line text-muted hover:bg-surface-2',
                 )}
               >
                 <Bookmark className={cn('h-4 w-4', row?.question.isBookmarked && 'fill-current')} />
@@ -356,8 +356,8 @@ export default function RevisionPage() {
                 className={cn(
                   'grid h-9 w-9 place-items-center rounded-md border transition-colors',
                   row?.question.isDifficult
-                    ? 'border-[#EDDFC5] bg-[#FBF3E6] text-[#8A5A12]'
-                    : 'border-line text-[#6B6B66] hover:bg-[#F7F7F3]',
+                    ? 'border-warn-line bg-warn-soft text-warn'
+                    : 'border-line text-muted hover:bg-surface-2',
                 )}
               >
                 <Flag className={cn('h-4 w-4', row?.question.isDifficult && 'fill-current')} />
@@ -365,20 +365,20 @@ export default function RevisionPage() {
               <button
                 onClick={() => setEditOpen(true)}
                 aria-label="Edit question"
-                className="grid h-9 w-9 place-items-center rounded-md border border-line text-[#6B6B66] hover:bg-[#F7F7F3]"
+                className="grid h-9 w-9 place-items-center rounded-md border border-line text-muted hover:bg-surface-2"
               >
                 <Pencil className="h-4 w-4" />
               </button>
               <div className="hidden items-center gap-1 sm:flex">
                 <button
                   onClick={() => void mark('incorrect')}
-                  className="rounded-md border border-[#EFD3D3] px-2 py-1.5 text-[11.5px] text-[#B42318] hover:bg-[#FBEEEE]"
+                  className="rounded-md border border-danger-line px-2 py-1.5 text-[11.5px] text-danger hover:bg-danger-soft"
                 >
                   Incorrect
                 </button>
                 <button
                   onClick={() => void mark('shaky')}
-                  className="rounded-md border border-[#EDDFC5] px-2 py-1.5 text-[11.5px] text-[#8A5A12] hover:bg-[#FBF3E6]"
+                  className="rounded-md border border-warn-line px-2 py-1.5 text-[11.5px] text-warn hover:bg-warn-soft"
                 >
                   Shaky
                 </button>

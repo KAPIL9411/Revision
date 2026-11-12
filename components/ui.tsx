@@ -95,8 +95,8 @@ export function Toaster() {
           className={cn(
             'pointer-events-auto max-w-sm rounded-lg border px-3.5 py-2.5 text-[13px] shadow-pop',
             item.tone === 'error'
-              ? 'border-[#E7C9C9] bg-[#FDF2F2] text-[#B42318]'
-              : 'border-[#26352E] bg-[#202124] text-white',
+              ? 'border-danger-line bg-danger-soft text-danger'
+              : 'border-line-strong bg-ink text-bg',
           )}
         >
           {item.message}
@@ -148,7 +148,7 @@ export function Sheet({
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-6">
       <div
-        className="absolute inset-0 bg-[#1B1B18]/35 backdrop-blur-[1px]"
+        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
         onClick={onClose}
         aria-hidden
       />
@@ -157,7 +157,7 @@ export function Sheet({
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
         className={cn(
-          'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-line bg-white shadow-pop sm:rounded-xl',
+          'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-pop sm:rounded-xl',
           size === 'sm' && 'sm:max-w-sm',
           size === 'md' && 'sm:max-w-lg',
           size === 'lg' && 'sm:max-w-2xl',
@@ -181,7 +181,7 @@ export function Sheet({
           </div>
         )}
         <div className="thin-scroll flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer ? <div className="border-t border-line bg-[#FCFCFA] px-5 py-3">{footer}</div> : null}
+        {footer ? <div className="border-t border-line bg-surface-2 px-5 py-3">{footer}</div> : null}
       </div>
     </div>
   )
@@ -228,7 +228,7 @@ export function Dropdown({
         <div
           role="menu"
           className={cn(
-            'absolute z-50 mt-1 min-w-[190px] overflow-hidden rounded-lg border border-line bg-white py-1 shadow-pop',
+            'absolute z-50 mt-1 min-w-[190px] overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-pop',
             align === 'end' ? 'right-0' : 'left-0',
           )}
         >
@@ -260,10 +260,10 @@ export function DropdownItem({
       onClick={onSelect}
       className={cn(
         'flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors disabled:opacity-40',
-        danger ? 'text-[#B42318] hover:bg-[#FDF2F2]' : 'text-[#33332F] hover:bg-[#F3F3EF]',
+        danger ? 'text-danger hover:bg-danger-soft' : 'text-body hover:bg-surface-2',
       )}
     >
-      {icon ? <span className="text-[#8A8A85]">{icon}</span> : null}
+      {icon ? <span className="text-faint">{icon}</span> : null}
       {children}
     </button>
   )
@@ -303,7 +303,7 @@ export function ConfirmDialog({
         </div>
       }
     >
-      <p className="text-[13.5px] leading-relaxed text-[#55554F]">{description}</p>
+      <p className="text-[13.5px] leading-relaxed text-body">{description}</p>
     </Sheet>
   )
 }
@@ -336,7 +336,7 @@ export function ImageViewer({
   }, [onClose])
 
   return (
-    <div className="fixed inset-0 z-[95] flex flex-col bg-[#141412]">
+    <div className="fixed inset-0 z-[95] flex flex-col bg-[#0B0B0C]">
       <div className="flex items-center justify-between px-4 py-3 text-white">
         <p className="text-[12.5px] text-white/60">Handwritten solution</p>
         <div className="flex items-center gap-1">
@@ -389,8 +389,8 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-line bg-[#FCFCFA] px-6 py-12 text-center">
-      {icon ? <div className="mb-3 text-[#B3B3AC]">{icon}</div> : null}
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-line bg-surface-2 px-6 py-12 text-center">
+      {icon ? <div className="mb-3 text-faint">{icon}</div> : null}
       <p className="text-[14px] font-medium text-ink">{title}</p>
       {description ? <p className="mt-1 max-w-sm text-[12.5px] leading-relaxed text-muted">{description}</p> : null}
       {action ? <div className="mt-4">{action}</div> : null}
@@ -420,7 +420,7 @@ export function StatTile({
     return (
       <button
         onClick={onClick}
-        className="card px-4 py-3.5 text-left transition-colors hover:border-[#D8D8D2]"
+        className="card px-4 py-3.5 text-left transition-colors hover:border-line-strong"
       >
         {content}
       </button>
@@ -432,9 +432,9 @@ export function StatTile({
 export function ProgressBar({ value, total, tone = 'accent' }: { value: number; total: number; tone?: 'accent' | 'muted' }) {
   const pct = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#EFEFEA]">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-3">
       <div
-        className={cn('h-full rounded-full transition-all', tone === 'accent' ? 'bg-accent' : 'bg-[#B9B9B2]')}
+        className={cn('h-full rounded-full transition-all', tone === 'accent' ? 'bg-accent' : 'bg-muted')}
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -453,7 +453,7 @@ export function Segmented<T extends string>({
   size?: 'sm' | 'md'
 }) {
   return (
-    <div role="tablist" className="inline-flex rounded-lg border border-line bg-[#F3F3EF] p-0.5">
+    <div role="tablist" className="inline-flex rounded-lg border border-line bg-surface-2 p-0.5">
       {options.map((option) => (
         <button
           key={option.value}
@@ -464,8 +464,8 @@ export function Segmented<T extends string>({
             'inline-flex items-center gap-1.5 rounded-[6px] font-medium transition-colors',
             size === 'sm' ? 'px-2.5 py-1 text-[11.5px]' : 'px-3 py-1.5 text-[12.5px]',
             value === option.value
-              ? 'bg-white text-ink shadow-[0_1px_2px_rgba(24,24,20,0.08)]'
-              : 'text-[#6B6B66] hover:text-ink',
+              ? 'bg-surface text-ink shadow-[0_1px_2px_rgba(24,24,20,0.08)]'
+              : 'text-muted hover:text-ink',
           )}
         >
           {option.icon}

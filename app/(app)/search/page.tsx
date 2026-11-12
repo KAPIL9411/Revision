@@ -166,7 +166,7 @@ function SearchInner() {
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-0 flex-1">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A39D]" />
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
           <input
             value={term}
             onChange={(event) => setTerm(event.target.value)}
@@ -178,7 +178,7 @@ function SearchInner() {
             <button
               onClick={() => setTerm('')}
               aria-label="Clear search"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-[#A3A39D] hover:text-ink"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-faint hover:text-ink"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -290,7 +290,7 @@ function SearchInner() {
                 type="checkbox"
                 checked={bookmarkedOnly}
                 onChange={(event) => setBookmarkedOnly(event.target.checked)}
-                className="h-4 w-4 rounded border-[#D5D5CE] accent-[#3157D5]"
+                className="h-4 w-4 rounded border-line accent-[#3157D5]"
               />
               Bookmarked
             </label>
@@ -299,7 +299,7 @@ function SearchInner() {
                 type="checkbox"
                 checked={difficultOnly}
                 onChange={(event) => setDifficultOnly(event.target.checked)}
-                className="h-4 w-4 rounded border-[#D5D5CE] accent-[#3157D5]"
+                className="h-4 w-4 rounded border-line accent-[#3157D5]"
               />
               Difficult
             </label>

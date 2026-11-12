@@ -6,11 +6,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { db } from '@/lib/db'
 import { cn } from '@/lib/utils'
+import { ThemeQuickToggle } from '@/components/ThemeToggle'
 import { SyncBadge } from './Sidebar'
 
 export function MobileHeader() {
   return (
-    <header className="safe-top sticky top-0 z-30 flex h-11 items-center gap-2 border-b border-line bg-[#FBFBF8]/95 px-4 backdrop-blur lg:hidden">
+    <header className="safe-top sticky top-0 z-30 flex h-11 items-center gap-2 border-b border-line bg-surface/95 px-4 backdrop-blur lg:hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/brand/ssc-emblem.webp"
@@ -20,7 +21,8 @@ export function MobileHeader() {
       />
       <div className="ml-auto flex items-center gap-2">
         <SyncBadge compact />
-        <Link href="/settings" aria-label="Settings" className="rounded-md p-1.5 text-[#6B6B66] hover:bg-[#EFEFEA]">
+        <ThemeQuickToggle />
+        <Link href="/settings" aria-label="Settings" className="rounded-md p-1.5 text-muted hover:bg-surface-3">
           <Settings className="h-4 w-4" />
         </Link>
       </div>
@@ -43,7 +45,7 @@ export function MobileNav({ onCapture }: { onCapture: () => void }) {
 
   return (
     <nav
-      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 backdrop-blur lg:hidden"
+      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur lg:hidden"
       aria-label="Main navigation"
     >
       <div className="grid grid-cols-5 items-end px-1 pb-1">
@@ -55,7 +57,7 @@ export function MobileNav({ onCapture }: { onCapture: () => void }) {
           <button
             onClick={onCapture}
             aria-label="Quick capture question"
-            className="-mt-5 grid h-12 w-12 place-items-center rounded-full bg-accent text-white shadow-[0_6px_16px_-6px_rgba(49,87,213,0.7)] active:bg-accent-dark"
+            className="-mt-5 grid h-12 w-12 place-items-center rounded-full bg-accent text-on-accent shadow-[0_6px_16px_-6px_rgba(49,87,213,0.7)] active:bg-accent-dark"
           >
             <Plus className="h-5 w-5" />
           </button>
@@ -87,13 +89,13 @@ function NavItem({
       href={href}
       className={cn(
         'relative flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium',
-        active ? 'text-accent' : 'text-[#8A8A85]',
+        active ? 'text-accent' : 'text-faint',
       )}
     >
       <span className="relative">
         <Icon className="h-[19px] w-[19px]" />
         {badge ? (
-          <span className="absolute -right-2 -top-1 min-w-[14px] rounded-full bg-accent px-1 text-center text-[9px] leading-[14px] text-white">
+          <span className="absolute -right-2 -top-1 min-w-[14px] rounded-full bg-accent px-1 text-center text-[9px] leading-[14px] text-on-accent">
             {badge > 99 ? '99+' : badge}
           </span>
         ) : null}

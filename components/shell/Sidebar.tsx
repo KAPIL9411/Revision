@@ -16,6 +16,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { useSubjectTree, useSyncState, type ChapterNode } from '@/lib/hooks'
 import { cn, relativeTime } from '@/lib/utils'
+import { ThemeQuickToggle } from '@/components/ThemeToggle'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
 
@@ -42,13 +43,13 @@ function DropChapter({
       className={cn(
         'group flex items-center gap-2 rounded-md py-[5px] pr-1.5 text-[13px] transition-colors',
         nested ? 'pl-8' : 'pl-6',
-        active ? 'bg-accent-soft font-medium text-accent' : 'text-[#55554F] hover:bg-[#EFEFEA]',
+        active ? 'bg-accent-soft font-medium text-accent' : 'text-body hover:bg-surface-3',
         isOver && 'bg-accent-soft ring-1 ring-accent/40',
       )}
     >
       <span className="truncate">{name}</span>
       {count > 0 ? (
-        <span className={cn('ml-auto text-[10.5px] tabular-nums', active ? 'text-accent/70' : 'text-[#A3A39D]')}>
+        <span className={cn('ml-auto text-[10.5px] tabular-nums', active ? 'text-accent/70' : 'text-faint')}>
           {count}
         </span>
       ) : null}
@@ -73,23 +74,23 @@ export function SyncBadge({ compact }: { compact?: boolean }) {
             : 'Not signed in'
 
   const tone = !sync.enabled
-    ? 'bg-[#B9B9B2]'
+    ? 'bg-muted'
     : !sync.online
-      ? 'bg-[#C79A3E]'
+      ? 'bg-warn'
       : sync.error
-        ? 'bg-[#C0453C]'
+        ? 'bg-danger'
         : sync.syncing
           ? 'bg-accent animate-pulse'
           : sync.signedIn && sync.pending === 0
-            ? 'bg-[#3E7A5E]'
-            : 'bg-[#C79A3E]'
+            ? 'bg-success'
+            : 'bg-warn'
 
   return (
-    <Link href="/settings" className="flex items-center gap-2 rounded-md px-1 py-1 text-[11.5px] text-[#77776F] hover:text-ink">
+    <Link href="/settings" className="flex items-center gap-2 rounded-md px-1 py-1 text-[11.5px] text-muted hover:text-ink">
       <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone)} aria-hidden />
       <span className="truncate">{label}</span>
       {!compact && sync.lastSyncedAt ? (
-        <span className="ml-auto truncate text-[10.5px] text-[#A3A39D]">{relativeTime(sync.lastSyncedAt)}</span>
+        <span className="ml-auto truncate text-[10.5px] text-faint">{relativeTime(sync.lastSyncedAt)}</span>
       ) : null}
     </Link>
   )
@@ -148,7 +149,7 @@ export function Sidebar({
   ]
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[268px] flex-col border-r border-line bg-[#FBFBF8] lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[268px] flex-col border-r border-line bg-surface lg:flex">
       <div className="flex items-center px-3.5 pb-3 pt-3.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -173,7 +174,7 @@ export function Sidebar({
               <item.icon className="h-[15px] w-[15px]" />
               <span className="flex-1 truncate">{item.label}</span>
               {item.badge ? (
-                <span className={cn('rounded px-1.5 py-0.5 text-[10.5px] tabular-nums', active ? 'bg-white/70 text-accent' : 'bg-[#EFEFEA] text-[#77776F]')}>
+                <span className={cn('rounded px-1.5 py-0.5 text-[10.5px] tabular-nums', active ? 'bg-surface/70 text-accent' : 'bg-surface-3 text-muted')}>
                   {item.badge}
                 </span>
               ) : null}
@@ -193,7 +194,7 @@ export function Sidebar({
                   <button
                     onClick={() => toggle(openSubjects, setOpenSubjects, group.subject.id)}
                     aria-label={`${open ? 'Collapse' : 'Expand'} ${group.subject.name}`}
-                    className="rounded p-1 text-[#A3A39D] hover:bg-[#EFEFEA] hover:text-ink"
+                    className="rounded p-1 text-faint hover:bg-surface-3 hover:text-ink"
                   >
                     <ChevronRight className={cn('h-3 w-3 transition-transform', open && 'rotate-90')} />
                   </button>
@@ -201,12 +202,12 @@ export function Sidebar({
                     href={`/subjects/${group.subject.id}`}
                     className={cn(
                       'flex flex-1 items-center gap-2 truncate rounded-md py-1 pr-1.5 text-[13px] font-medium',
-                      pathname === `/subjects/${group.subject.id}` ? 'text-accent' : 'text-[#33332F] hover:text-ink',
+                      pathname === `/subjects/${group.subject.id}` ? 'text-accent' : 'text-body hover:text-ink',
                     )}
                   >
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: group.subject.color }} />
                     <span className="truncate">{group.subject.name}</span>
-                    <span className="ml-auto text-[10.5px] tabular-nums text-[#A3A39D]">{group.count}</span>
+                    <span className="ml-auto text-[10.5px] tabular-nums text-faint">{group.count}</span>
                   </Link>
                 </div>
 
@@ -222,7 +223,7 @@ export function Sidebar({
                               <button
                                 onClick={() => toggle(openParents, setOpenParents, node.chapter.id)}
                                 aria-label={`${parentOpen ? 'Collapse' : 'Expand'} ${node.chapter.name}`}
-                                className="ml-[26px] rounded p-0.5 text-[#A3A39D] hover:text-ink"
+                                className="ml-[26px] rounded p-0.5 text-faint hover:text-ink"
                               >
                                 <ChevronRight className={cn('h-2.5 w-2.5 transition-transform', parentOpen && 'rotate-90')} />
                               </button>
@@ -265,13 +266,16 @@ export function Sidebar({
       <div className="space-y-1 border-t border-line px-3 py-2.5">
         <button
           onClick={onTogglePanel}
-          className={cn('navlink w-full', panelOpen && 'bg-[#EFEFEA] text-ink')}
+          className={cn('navlink w-full', panelOpen && 'bg-surface-3 text-ink')}
           aria-pressed={panelOpen}
         >
           <PanelRight className="h-[15px] w-[15px]" />
           Quick capture panel
         </button>
-        <SyncBadge />
+        <div className="flex items-center justify-between gap-2">
+          <SyncBadge />
+          <ThemeQuickToggle />
+        </div>
       </div>
     </aside>
   )

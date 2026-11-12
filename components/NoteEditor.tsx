@@ -84,7 +84,7 @@ export function NoteContent({ text, className }: { text: string; className?: str
   }, [text])
 
   if (!text.trim()) {
-    return <p className="text-[13px] text-[#9A9A94]">Nothing written yet.</p>
+    return <p className="text-[13px] text-faint">Nothing written yet.</p>
   }
 
   return <div className={`prose-note ${className ?? ''}`}>{blocks}</div>
@@ -104,13 +104,13 @@ function NotePhoto({ attachment, onOpen, onDelete }: { attachment: Attachment; o
           <img src={url} alt="Handwritten note" loading="lazy" decoding="async" className="h-28 w-full cursor-zoom-in object-cover" />
         </button>
       ) : (
-        <div className="h-28 w-full animate-pulse bg-[#F3F3EF]" />
+        <div className="h-28 w-full animate-pulse bg-surface-2" />
       )}
       <button
         type="button"
         onClick={() => onDelete(attachment)}
         aria-label="Delete note photo"
-        className="absolute right-1.5 top-1.5 rounded-md border border-line bg-white/95 p-1.5 text-[#8A8A85] opacity-0 transition-opacity hover:text-[#B42318] focus-visible:opacity-100 group-hover:opacity-100"
+        className="absolute right-1.5 top-1.5 rounded-md border border-line bg-surface/95 p-1.5 text-faint opacity-0 transition-opacity hover:text-danger focus-visible:opacity-100 group-hover:opacity-100"
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>
@@ -244,13 +244,13 @@ export function NoteEditor({ chapterId, notePhotos }: { chapterId: string; noteP
               { value: 'preview', label: 'Read' },
             ]}
           />
-          <span className="text-[11px] text-[#9A9A94]">
+          <span className="text-[11px] text-faint">
             {status === 'saving' ? (
               <span className="inline-flex items-center gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" /> Saving…
               </span>
             ) : status === 'saved' ? (
-              <span className="inline-flex items-center gap-1 text-[#3E7A5E]">
+              <span className="inline-flex items-center gap-1 text-success">
                 <Check className="h-3 w-3" /> Saved
               </span>
             ) : null}
@@ -282,8 +282,8 @@ export function NoteEditor({ chapterId, notePhotos }: { chapterId: string; noteP
       </div>
 
       {mode === 'write' ? (
-        <div className="overflow-hidden rounded-lg border border-line bg-white">
-          <div className="flex items-center gap-0.5 border-b border-line bg-[#FCFCFA] px-1.5 py-1">
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
+          <div className="flex items-center gap-0.5 border-b border-line bg-surface-2 px-1.5 py-1">
             {TOOLS.map((tool) => (
               <button
                 key={tool.key}
@@ -292,12 +292,12 @@ export function NoteEditor({ chapterId, notePhotos }: { chapterId: string; noteP
                 aria-label={tool.label}
                 title={tool.label}
                 onMouseDown={(event) => event.preventDefault()}
-                className="rounded p-1.5 text-[#6B6B66] hover:bg-[#EFEFEA] hover:text-ink"
+                className="rounded p-1.5 text-muted hover:bg-surface-3 hover:text-ink"
               >
                 <tool.icon className="h-3.5 w-3.5" />
               </button>
             ))}
-            <span className="ml-auto pr-1 text-[10.5px] text-[#B3B3AC]">Autosaves</span>
+            <span className="ml-auto pr-1 text-[10.5px] text-faint">Autosaves</span>
           </div>
           <textarea
             ref={textareaRef}
@@ -309,16 +309,16 @@ export function NoteEditor({ chapterId, notePhotos }: { chapterId: string; noteP
             }}
             rows={14}
             placeholder={'## Important formulas\n- $SI = P × R × T / 100$\n\n## Shortcuts\n- Use fraction conversion for 12.5% = 1/8'}
-            className="min-h-[240px] w-full resize-y border-0 px-3.5 py-3 text-[13.5px] leading-[1.7] outline-none placeholder:text-[#B3B3AC]"
+            className="min-h-[240px] w-full resize-y border-0 px-3.5 py-3 text-[13.5px] leading-[1.7] outline-none placeholder:text-faint"
           />
         </div>
       ) : (
-        <div className="min-h-[160px] rounded-lg border border-line bg-white px-3.5 py-3">
+        <div className="min-h-[160px] rounded-lg border border-line bg-surface px-3.5 py-3">
           <NoteContent text={value} />
         </div>
       )}
 
-      <p className="text-[11px] text-[#9A9A94]">
+      <p className="text-[11px] text-faint">
         Tip: wrap a formula in dollar signs, like <span className="formula">$a^2+b^2=c^2$</span>.
       </p>
 
@@ -357,7 +357,7 @@ export function NoteEditor({ chapterId, notePhotos }: { chapterId: string; noteP
 
 export function NoteEditorHint() {
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] text-[#9A9A94]">
+    <span className="inline-flex items-center gap-1 text-[11px] text-faint">
       <Pencil className="h-3 w-3" /> Notes autosave as you type
     </span>
   )

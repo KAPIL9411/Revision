@@ -6,6 +6,7 @@ import { db, getMeta } from './db'
 import { fetchDriveImage } from './drive'
 import { getSignedUrl } from './supabase'
 import { getSyncState, subscribeSync } from './sync'
+import { getThemeSnapshot, subscribeTheme } from './theme'
 import type { Attachment, Chapter, Formula, Question, RevisionEntry, Subject, Topic } from './types'
 import { startOfTodayISO } from './utils'
 
@@ -369,6 +370,10 @@ export function useDashboard() {
 
 export function useSyncState() {
   return useSyncExternalStore(subscribeSync, getSyncState, getSyncState)
+}
+
+export function useThemeChoice() {
+  return useSyncExternalStore(subscribeTheme, getThemeSnapshot, () => 'system' as const)
 }
 
 export function useAttachmentUrl(attachment: Attachment | null | undefined) {

@@ -198,7 +198,7 @@ export default function SubjectPage() {
                         onClick={() => void move(ids, index, -1)}
                         disabled={index === 0}
                         aria-label={`Move ${node.chapter.name} up`}
-                        className="rounded p-1 text-[#A3A39D] hover:bg-[#F3F3EF] hover:text-ink disabled:opacity-30"
+                        className="rounded p-1 text-faint hover:bg-surface-2 hover:text-ink disabled:opacity-30"
                       >
                         <ArrowUp className="h-3.5 w-3.5" />
                       </button>
@@ -206,7 +206,7 @@ export default function SubjectPage() {
                         onClick={() => void move(ids, index, 1)}
                         disabled={index === ids.length - 1}
                         aria-label={`Move ${node.chapter.name} down`}
-                        className="rounded p-1 text-[#A3A39D] hover:bg-[#F3F3EF] hover:text-ink disabled:opacity-30"
+                        className="rounded p-1 text-faint hover:bg-surface-2 hover:text-ink disabled:opacity-30"
                       >
                         <ArrowDown className="h-3.5 w-3.5" />
                       </button>
@@ -215,7 +215,7 @@ export default function SubjectPage() {
                       trigger={
                         <button
                           aria-label={`Actions for ${node.chapter.name}`}
-                          className="rounded p-1 text-[#A3A39D] hover:bg-[#F3F3EF] hover:text-ink"
+                          className="rounded p-1 text-faint hover:bg-surface-2 hover:text-ink"
                         >
                           <MoreHorizontal className="h-3.5 w-3.5" />
                         </button>
@@ -266,11 +266,11 @@ export default function SubjectPage() {
                         <div key={child.chapter.id} className="flex items-center gap-2">
                           <Link
                             href={`/chapters/${child.chapter.id}`}
-                            className={cn('min-w-0 flex-1 truncate py-1 text-[12.5px] text-[#55554F] hover:text-accent')}
+                            className={cn('min-w-0 flex-1 truncate py-1 text-[12.5px] text-body hover:text-accent')}
                           >
                             {child.chapter.name}
                           </Link>
-                          <span className="text-[10.5px] tabular-nums text-[#A3A39D]">
+                          <span className="text-[10.5px] tabular-nums text-faint">
                             {child.revised}/{child.total}
                           </span>
                           <div className="hidden items-center gap-0.5 sm:flex">
@@ -284,7 +284,7 @@ export default function SubjectPage() {
                               }
                               disabled={childIndex === 0}
                               aria-label={`Move ${child.chapter.name} up`}
-                              className="rounded p-1 text-[#C4C4BC] hover:text-ink disabled:opacity-30"
+                              className="rounded p-1 text-faint hover:text-ink disabled:opacity-30"
                             >
                               <ArrowUp className="h-3 w-3" />
                             </button>
@@ -298,7 +298,7 @@ export default function SubjectPage() {
                               }
                               disabled={childIndex === node.children.length - 1}
                               aria-label={`Move ${child.chapter.name} down`}
-                              className="rounded p-1 text-[#C4C4BC] hover:text-ink disabled:opacity-30"
+                              className="rounded p-1 text-faint hover:text-ink disabled:opacity-30"
                             >
                               <ArrowDown className="h-3 w-3" />
                             </button>
@@ -307,7 +307,7 @@ export default function SubjectPage() {
                             trigger={
                               <button
                                 aria-label={`Actions for ${child.chapter.name}`}
-                                className="rounded p-1 text-[#C4C4BC] hover:text-ink"
+                                className="rounded p-1 text-faint hover:text-ink"
                               >
                                 <MoreHorizontal className="h-3 w-3" />
                               </button>

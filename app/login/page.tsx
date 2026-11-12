@@ -97,13 +97,13 @@ export default function LoginPage() {
           )}
 
           {error ? (
-            <p className="mt-3 rounded-md border border-[#EFD3D3] bg-[#FBEEEE] px-3 py-2 text-[11.5px] text-[#B42318]">
+            <p className="mt-3 rounded-md border border-danger-line bg-danger-soft px-3 py-2 text-[11.5px] text-danger">
               {error}
             </p>
           ) : null}
         </div>
 
-        <p className="mt-4 text-center text-[11px] text-[#B3B3AC]">
+        <p className="mt-4 text-center text-[11px] text-faint">
           No analytics. No sharing. Your questions stay yours.
         </p>
       </div>

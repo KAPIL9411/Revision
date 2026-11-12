@@ -19,7 +19,7 @@ import { Button, ConfirmDialog, ImageViewer, Sheet, toast } from './ui'
 
 function QuestionPhoto({ attachment, onOpen }: { attachment: Attachment; onOpen: (url: string) => void }) {
   const url = useAttachmentUrl(attachment)
-  if (!url) return <div className="h-40 animate-pulse rounded-lg bg-[#F3F3EF]" />
+  if (!url) return <div className="h-40 animate-pulse rounded-lg bg-surface-2" />
   return (
     <button type="button" onClick={() => onOpen(url)} className="block w-full overflow-hidden rounded-lg border border-line">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -100,7 +100,7 @@ export function QuestionSheet({
                 const value = await toggleDifficult(question.id)
                 toast(value ? 'Marked difficult' : 'Removed from difficult')
               }}
-              className={question.isDifficult ? 'border-[#EDDFC5] text-[#8A5A12]' : undefined}
+              className={question.isDifficult ? 'border-warn-line text-warn' : undefined}
             >
               <Flag className={cn('h-3.5 w-3.5', question.isDifficult && 'fill-current')} /> Difficult
             </Button>
@@ -112,7 +112,7 @@ export function QuestionSheet({
             </Button>
             <Button
               variant="ghost"
-              className="ml-auto text-[#B42318] hover:bg-[#FDF2F2]"
+              className="ml-auto text-danger hover:bg-danger-soft"
               onClick={() => setConfirmDelete(true)}
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -146,20 +146,20 @@ export function QuestionSheet({
             <span className="chip">{SOURCE_LABEL[question.sourceType]}</span>
             {question.sourceName ? <span className="chip">{question.sourceName}</span> : null}
             <span className="chip">{formatDate(question.questionDate)}</span>
-            {question.isDifficult ? <span className="chip text-[#8A5A12]">Difficult</span> : null}
+            {question.isDifficult ? <span className="chip text-warn">Difficult</span> : null}
             {question.isBookmarked ? <span className="chip text-accent">Bookmarked</span> : null}
           </div>
 
           {question.questionText?.trim() ? (
-            <p className="whitespace-pre-wrap text-[14px] leading-[1.7] text-[#262623]">{question.questionText}</p>
+            <p className="whitespace-pre-wrap text-[14px] leading-[1.7] text-ink">{question.questionText}</p>
           ) : null}
 
           {questionImage ? <QuestionPhoto attachment={questionImage} onOpen={setViewer} /> : null}
 
           {question.personalRemark?.trim() ? (
-            <div className="rounded-lg border-l-2 border-[#D7C9A8] bg-[#FBF8F0] px-3 py-2">
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[#A08A5B]">Remark</p>
-              <p className="mt-0.5 whitespace-pre-wrap text-[13px] leading-relaxed text-[#55503F]">
+            <div className="rounded-lg border-l-2 border-warn-line bg-warn-soft px-3 py-2">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-warn">Remark</p>
+              <p className="mt-0.5 whitespace-pre-wrap text-[13px] leading-relaxed text-body">
                 {question.personalRemark}
               </p>
             </div>
@@ -177,7 +177,7 @@ export function QuestionSheet({
 
           <SolutionBlock question={question} />
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-2.5 text-[11px] text-[#9A9A94]">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-2.5 text-[11px] text-faint">
             <span>Updated {relativeTime(question.updatedAt)}</span>
             <span>Question date {formatDate(question.questionDate)}</span>
             {question.primaryChapterId ? null : <span>Unassigned — drag it into a chapter</span>}

@@ -223,7 +223,7 @@ export default function FormulasPage() {
       </header>
 
       <div className="relative max-w-md">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A3A39D]" />
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -253,7 +253,7 @@ export default function FormulasPage() {
                         trigger={
                           <button
                             aria-label={`Actions for ${formula.title}`}
-                            className="rounded p-1 text-[#A3A39D] hover:bg-[#F3F3EF] hover:text-ink"
+                            className="rounded p-1 text-faint hover:bg-surface-2 hover:text-ink"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </button>
@@ -328,7 +328,7 @@ export default function FormulasPage() {
         }}
       />
 
-      <p className={cn('text-[11px] text-[#B3B3AC]')}>
+      <p className={cn('text-[11px] text-faint')}>
         Tip: add a formula while revising a chapter and it appears here automatically.
       </p>
     </div>

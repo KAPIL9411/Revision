@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Button, ConfirmDialog, toast } from '@/components/ui'
+import { ThemeSegmented } from '@/components/ThemeToggle'
 import { db, getMeta, setMeta } from '@/lib/db'
 import { exportBackup, importBackup } from '@/lib/backup'
 import { connectDrive, disconnectDrive, driveConfigured, getDriveStatus, uploadPendingImages } from '@/lib/drive'
@@ -240,20 +241,20 @@ export default function SettingsPage() {
           )
         ) : (
           <div className="space-y-3">
-            <p className="text-[12.5px] leading-relaxed text-[#55554F]">
+            <p className="text-[12.5px] leading-relaxed text-body">
               To enable cross-device sync and Google sign-in, create a Supabase project, run the SQL in{' '}
-              <code className="rounded bg-[#F3F3EF] px-1 py-0.5 text-[11.5px]">supabase/migrations/0001_init.sql</code>{' '}
+              <code className="rounded bg-surface-2 px-1 py-0.5 text-[11.5px]">supabase/migrations/0001_init.sql</code>{' '}
               and set these environment variables on your deployment:
             </p>
-            <ul className="space-y-1 text-[11.5px] text-[#55554F]">
+            <ul className="space-y-1 text-[11.5px] text-body">
               <li>
-                <code className="rounded bg-[#F3F3EF] px-1 py-0.5">NEXT_PUBLIC_SUPABASE_URL</code>
+                <code className="rounded bg-surface-2 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_URL</code>
               </li>
               <li>
-                <code className="rounded bg-[#F3F3EF] px-1 py-0.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>
+                <code className="rounded bg-surface-2 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>
               </li>
               <li>
-                <code className="rounded bg-[#F3F3EF] px-1 py-0.5">NEXT_PUBLIC_ALLOWED_EMAIL</code> — the only
+                <code className="rounded bg-surface-2 px-1 py-0.5">NEXT_PUBLIC_ALLOWED_EMAIL</code> — the only
                 account allowed in
               </li>
             </ul>
@@ -262,6 +263,18 @@ export default function SettingsPage() {
             </p>
           </div>
         )}
+      </Section>
+
+      <Section
+        id="appearance"
+        title="Appearance"
+        description="Dark mode paints the vault near-black for late-night revision. The choice is remembered on this device."
+      >
+        <ThemeSegmented />
+        <p className="mt-3 text-[11px] leading-relaxed text-muted">
+          The moon button in the sidebar (and the header on your phone) switches instantly between light and dark.
+          System follows your device setting.
+        </p>
       </Section>
 
       <Section id="sync" title="Synchronisation" description="Every change is queued locally first, then pushed.">
@@ -280,7 +293,7 @@ export default function SettingsPage() {
         </div>
 
         {sync.error ? (
-          <p className="mt-2 rounded-md border border-[#EFD3D3] bg-[#FBEEEE] px-3 py-2 text-[11.5px] text-[#B42318]">
+          <p className="mt-2 rounded-md border border-danger-line bg-danger-soft px-3 py-2 text-[11.5px] text-danger">
             {sync.error}
           </p>
         ) : null}
@@ -309,13 +322,13 @@ export default function SettingsPage() {
           <div className="mt-4 space-y-2">
             <p className="section-title">Needs your decision</p>
             {conflicts.map((conflict) => (
-              <div key={conflict.id} className="rounded-lg border border-[#EDDFC5] bg-[#FBF8F0] px-3 py-2.5">
+              <div key={conflict.id} className="rounded-lg border border-warn-line bg-warn-soft px-3 py-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="text-[12.5px] font-medium">
                       {ENTITY_LABEL[conflict.entity] ?? conflict.entity} edited on two devices
                     </p>
-                    <p className="text-[11px] text-[#8A7B5C]">
+                    <p className="text-[11px] text-warn">
                       This device {relativeTime(conflict.localUpdatedAt)} · server{' '}
                       {relativeTime(conflict.remoteUpdatedAt)}
                     </p>
@@ -355,14 +368,14 @@ export default function SettingsPage() {
         description="Photos upload to a folder called “SSC Revision Vault” in your Google Drive. This device keeps a copy so everything still opens offline."
       >
         {!driveConfigured ? (
-          <div className="space-y-2 text-[11.5px] leading-relaxed text-[#55554F]">
+          <div className="space-y-2 text-[11.5px] leading-relaxed text-body">
             <p>
               Google Drive is not configured yet. Create an OAuth <em>Web application</em> client in Google Cloud
               Console, enable the Google Drive API, then add:
             </p>
             <ul className="space-y-1">
               <li>
-                <code className="rounded bg-[#F3F3EF] px-1 py-0.5">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> — the client ID
+                <code className="rounded bg-surface-2 px-1 py-0.5">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> — the client ID
                 (no secret is needed in the browser)
               </li>
             </ul>
@@ -485,15 +498,15 @@ export default function SettingsPage() {
           </span>
         </div>
         {importSummary ? (
-          <p className="mt-3 rounded-md border border-[#CFE6D9] bg-[#F2F9F5] px-3 py-2 text-[11.5px] text-[#216A4A]">
+          <p className="mt-3 rounded-md border border-success-line bg-success-soft px-3 py-2 text-[11.5px] text-success">
             {importSummary}
           </p>
         ) : null}
       </Section>
 
-      <section className="card border-[#E7C9C9] px-4 py-4 sm:px-5">
+      <section className="card border-danger-line px-4 py-4 sm:px-5">
         <div className="flex items-start gap-2.5">
-          <AlertTriangle className="mt-0.5 h-4 w-4 text-[#B42318]" />
+          <AlertTriangle className="mt-0.5 h-4 w-4 text-danger" />
           <div className="flex-1">
             <h2 className="h2">Erase this device</h2>
             <p className="mt-0.5 text-[11.5px] leading-relaxed text-muted">
@@ -519,7 +532,7 @@ export default function SettingsPage() {
         }}
       />
 
-      <p className="pb-2 text-center text-[11px] text-[#B3B3AC]">
+      <p className="pb-2 text-center text-[11px] text-faint">
         SSC Revision Vault · capture → place → attach → revise
       </p>
     </div>

@@ -55,8 +55,8 @@ function Field({
         {label}
       </label>
       {children}
-      {hint && !error ? <p className="mt-1 text-[11px] text-[#9A9A94]">{hint}</p> : null}
-      {error ? <p className="mt-1 text-[11.5px] text-[#B42318]">{error}</p> : null}
+      {hint && !error ? <p className="mt-1 text-[11px] text-faint">{hint}</p> : null}
+      {error ? <p className="mt-1 text-[11.5px] text-danger">{error}</p> : null}
     </div>
   )
 }
@@ -295,7 +295,7 @@ export function QuestionForm({
           />
           {preview || (existingImage && existingImageUrl) ? (
             <div className="flex items-center gap-2">
-              <div className="relative h-12 w-12 overflow-hidden rounded-md border border-line bg-[#F3F3EF]">
+              <div className="relative h-12 w-12 overflow-hidden rounded-md border border-line bg-surface-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={preview ?? existingImageUrl ?? ''} alt="Question attachment preview" className="h-full w-full object-cover" />
               </div>
@@ -396,7 +396,7 @@ export function QuestionForm({
                   'rounded-md border px-2.5 py-1 text-[12px] transition-colors',
                   current === difficulty
                     ? 'border-accent bg-accent-soft font-medium text-accent'
-                    : 'border-[#E1E1DC] bg-white text-[#6B6B66] hover:border-[#CFCFC8]',
+                    : 'border-line-strong bg-surface text-muted hover:border-line-strong',
                 )}
               >
                 {DIFFICULTY_LABEL[difficulty]}

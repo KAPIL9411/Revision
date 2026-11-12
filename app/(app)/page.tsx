@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
       {isEmpty ? (
         <section className="card overflow-hidden">
-          <div className="border-b border-line bg-[#FCFCFA] px-6 py-8">
+          <div className="border-b border-line bg-surface-2 px-6 py-8">
             <p className="section-title">The core loop</p>
             <h2 className="mt-2 text-[19px] font-semibold tracking-[-0.02em]">
               Capture → assign a chapter → attach the solution → revise.
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                 <Link
                   key={row.subject.id}
                   href={`/subjects/${row.subject.id}`}
-                  className="block px-4 py-3 transition-colors hover:bg-[#FCFCFA]"
+                  className="block px-4 py-3 transition-colors hover:bg-surface-2"
                 >
                   <div className="flex items-center justify-between text-[12.5px]">
                     <span className="flex items-center gap-2 font-medium">
@@ -243,7 +243,7 @@ export default function DashboardPage() {
                   <Link
                     key={row.chapter.id}
                     href={`/chapters/${row.chapter.id}`}
-                    className="flex items-center justify-between gap-2 px-4 py-2.5 text-[12.5px] transition-colors hover:bg-[#FCFCFA]"
+                    className="flex items-center justify-between gap-2 px-4 py-2.5 text-[12.5px] transition-colors hover:bg-surface-2"
                   >
                     <span className="truncate">{row.chapter.name}</span>
                     <span className="shrink-0 text-[11px] text-muted">{relativeTime(row.revisedAt)}</span>
@@ -260,14 +260,14 @@ export default function DashboardPage() {
           {data.difficult > 0 ? (
             <Link
               href="/search?difficult=1"
-              className="card flex items-center gap-3 px-4 py-3 transition-colors hover:border-[#D8D8D2]"
+              className="card flex items-center gap-3 px-4 py-3 transition-colors hover:border-line-strong"
             >
-              <Flag className="h-4 w-4 text-[#8A5A12]" />
+              <Flag className="h-4 w-4 text-warn" />
               <div className="min-w-0">
                 <p className="text-[12.5px] font-medium">Revise difficult questions</p>
                 <p className="text-[11.5px] text-muted">{data.difficult} flagged across chapters</p>
               </div>
-              <ArrowRight className="ml-auto h-3.5 w-3.5 text-[#B3B3AC]" />
+              <ArrowRight className="ml-auto h-3.5 w-3.5 text-faint" />
             </Link>
           ) : null}
         </div>
