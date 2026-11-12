@@ -68,17 +68,19 @@ function QuestionTile({ question, onOpen }: { question: Question; onOpen: () => 
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt="" className="absolute inset-0 h-full w-full object-cover" />
       ) : (
-        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_0%_0%,rgb(var(--accent)/0.18),transparent_65%)] p-3.5 pb-10">
-          <p className="line-clamp-6 text-[12.5px] leading-snug text-ink">{preview || 'Photo question'}</p>
+        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_0%_0%,rgb(var(--accent)/0.18),transparent_65%)] p-3.5 flex flex-col gap-1">
+          {preview ? (
+            <p className="line-clamp-6 text-[12.5px] leading-snug text-ink">{preview}</p>
+          ) : (
+            <p className="text-[12.5px] text-muted">No text attached</p>
+          )}
         </div>
       )}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent p-3 pt-6">
-        {url ? (
-          <p className="line-clamp-2-safe text-[11.5px] font-medium leading-snug text-on-accent">
-            {preview || 'Screenshot question'}
-          </p>
-        ) : null}
-        <p className={cn('text-[10px] text-on-accent/70', url && 'mt-0.5')}>{relativeTime(question.createdAt)}</p>
+        <p className="line-clamp-2-safe text-[11.5px] font-medium leading-snug text-on-accent">
+          {preview || 'Screenshot question'}
+        </p>
+        <p className="text-[10px] text-on-accent/70">{relativeTime(question.createdAt)}</p>
       </div>
     </button>
   )
