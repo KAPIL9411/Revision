@@ -62,7 +62,7 @@ function QuestionTile({ question, onOpen }: { question: Question; onOpen: () => 
   return (
     <button
       onClick={onOpen}
-      className="group relative aspect-[4/5] w-[calc(50%-0.375rem)] shrink-0 overflow-hidden rounded-[22px] border border-line bg-surface-2 text-left transition-transform active:scale-[0.98]"
+      className="group relative aspect-[4/5] w-[33.333%] shrink-0 overflow-hidden rounded-[22px] border border-line bg-surface-2 text-left transition-transform active:scale-[0.98] sm:w-[calc(50%-0.375rem)]"
     >
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -258,7 +258,7 @@ export default function DashboardPage() {
             ))}
             <button
               onClick={() => setCaptureOpen(true)}
-              className="grid aspect-[4/5] w-[calc(50%-0.375rem)] shrink-0 place-items-center rounded-[22px] border border-dashed border-line-strong text-muted transition-colors hover:text-ink"
+              className="grid aspect-[4/5] w-[33.333%] shrink-0 place-items-center rounded-[22px] border border-dashed border-line-strong text-muted transition-colors hover:text-ink sm:w-[calc(50%-0.375rem)]"
             >
               <span className="flex flex-col items-center gap-1.5 text-[11px]">
                 <Plus className="h-5 w-5" /> Add
