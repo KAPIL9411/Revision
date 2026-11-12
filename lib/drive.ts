@@ -9,6 +9,7 @@ export const driveConfigured = Boolean(CLIENT_ID)
 
 export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file'
 const FOLDER_NAME = 'SSC Revision Vault'
+const REFRESH_TOKEN_STORAGE_KEY = 'vault:drive-refresh-token'
 const TOKEN_STORAGE_KEY = 'vault:drive-token'
 const FOLDER_META_KEY = 'driveFolderId'
 const LINKED_META_KEY = 'driveLinked'
@@ -18,6 +19,7 @@ const UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3'
 type TokenResponse = {
   access_token?: string
   expires_in?: number
+  refresh_token?: string
   error?: string
   error_description?: string
 }
@@ -30,7 +32,9 @@ declare global {
           initTokenClient: (config: {
             client_id: string
             scope: string
+            access_type?: 'online' | 'offline'
             prompt?: string
+            include_granted_scopes?: boolean
             callback: (response: TokenResponse) => void
             error_callback?: (error: { type?: string; message?: string }) => void
           }) => { requestAccessToken: (options?: { prompt?: string }) => void }
@@ -53,6 +57,13 @@ export class DriveError extends Error {
 
 interface StoredToken {
   accessToken: string
+  refreshToken?: string
+  expiresAt?: number
+}
+
+interface RefreshTokenRecord {
+  userId: string
+  refreshToken: string
   expiresAt: number
 }
 
@@ -62,15 +73,19 @@ function readToken(): StoredToken | null {
     const raw = window.sessionStorage.getItem(TOKEN_STORAGE_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as StoredToken
-    if (!parsed.accessToken || parsed.expiresAt - 60_000 <= Date.now()) return null
+    if (!parsed.accessToken || (parsed.expiresAt ?? 0) - 60_000 <= Date.now()) return null
     return parsed
   } catch {
     return null
   }
 }
 
-function writeToken(accessToken: string, expiresIn: number) {
-  const token: StoredToken = { accessToken, expiresAt: Date.now() + expiresIn * 1000 }
+function writeToken(accessToken: string, expiresIn: number, refreshToken?: string) {
+  const token: StoredToken = {
+    accessToken,
+    refreshToken,
+    expiresAt: Date.now() + expiresIn * 1000,
+  }
   try {
     window.sessionStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(token))
   } catch {
@@ -79,12 +94,39 @@ function writeToken(accessToken: string, expiresIn: number) {
   memoryToken = token
 }
 
+function readRefreshToken(): RefreshTokenRecord | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as RefreshTokenRecord
+    if (!parsed.refreshToken || parsed.expiresAt - 60_000 <= Date.now()) return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function writeRefreshToken(refreshToken: string, expiresAt: number) {
+  try {
+    window.sessionStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, JSON.stringify({ refreshToken, expiresAt }))
+  } catch {
+    /* private mode */
+  }
+}
+
 let memoryToken: StoredToken | null = null
 
 function currentToken(): StoredToken | null {
   const stored = readToken()
   if (stored) return stored
-  if (memoryToken && memoryToken.expiresAt - 60_000 > Date.now()) return memoryToken
+  if (memoryToken && (memoryToken.expiresAt ?? 0) - 60_000 > Date.now()) return memoryToken
+  return null
+}
+
+function getRefreshToken(): string | null {
+  const stored = readRefreshToken()
+  if (stored) return stored.refreshToken
   return null
 }
 
@@ -126,7 +168,9 @@ async function requestAccessToken(prompt: string): Promise<StoredToken> {
     const client = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: DRIVE_SCOPE,
+      access_type: 'offline',
       prompt,
+      include_granted_scopes: true,
       callback: (response) => {
         if (settled) return
         settled = true
@@ -140,8 +184,13 @@ async function requestAccessToken(prompt: string): Promise<StoredToken> {
           )
           return
         }
+        if (response.refresh_token) {
+        writeToken(response.access_token, response.expires_in ?? 3600, response.refresh_token)
+        writeRefreshToken(response.refresh_token, Date.now() + (response.expires_in ?? 3600) * 1000)
+      } else {
         writeToken(response.access_token, response.expires_in ?? 3600)
-        resolve({ accessToken: response.access_token, expiresAt: Date.now() + (response.expires_in ?? 3600) * 1000 })
+      }
+      resolve({ accessToken: response.access_token, expiresAt: Date.now() + (response.expires_in ?? 3600) * 1000 })
       },
     })
     try {
@@ -160,7 +209,7 @@ async function requestAccessToken(prompt: string): Promise<StoredToken> {
   })
 }
 
-/** Interactive connect — shows Google's consent screen when needed. */
+/** Connect Google Drive — obtains offline access with refresh token that persists across tab reloads. */
 export async function connectDrive() {
   const token = await requestAccessToken('consent')
   await setMeta(LINKED_META_KEY, '1')
@@ -173,14 +222,63 @@ export function hasDriveToken() {
 
 async function accessTokenOrThrow() {
   const stored = currentToken()
-  if (stored) return stored.accessToken
-  try {
-    const silent = await requestAccessToken('')
-    return silent.accessToken
-  } catch (error) {
-    if (error instanceof DriveError && error.code === 'not_configured') throw error
-    throw new DriveError('Google Drive needs to be reconnected in Settings.', 'not_connected')
+  if (stored && stored.accessToken) {
+    // Try to silently refresh the access token if we have a refresh token
+    if (stored.refreshToken) {
+      try {
+        const { access_token, expires_in } = await refreshAccessToken(stored.refreshToken)
+        writeToken(access_token, expires_in, stored.refreshToken)
+        writeRefreshToken(stored.refreshToken, Date.now() + expires_in * 1000)
+        return access_token
+      } catch {
+        // If refresh fails, fall through to full re-auth below
+      }
+    }
+    if (stored.accessToken) return stored.accessToken
   }
+  // No valid token — start full OAuth flow
+  const token = await requestAccessToken('consent')
+  await setMeta(LINKED_META_KEY, '1')
+  await ensureFolderId(token.accessToken, true)
+  return token.accessToken
+}
+
+async function refreshAccessToken(refreshToken: string): Promise<{ access_token: string; expires_in: number }> {
+  const google = window.google
+  if (!google?.accounts?.oauth2) throw new DriveError('Google sign-in is unavailable.')
+
+  return new Promise<{ access_token: string; expires_in: number }>((resolve, reject) => {
+    let settled = false
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      prompt: 'none',
+      include_granted_scopes: true,
+      callback: (response) => {
+        if (settled) return
+        settled = true
+        if (response.error || !response.access_token) {
+          reject(new DriveError('Failed to refresh access token.'))
+          return
+        }
+        resolve({
+          access_token: response.access_token,
+          expires_in: response.expires_in ?? 3600,
+        })
+      },
+    })
+    try {
+      client.requestAccessToken({ prompt: 'none', refresh_token: refreshToken } as any)
+    } catch (error) {
+      settled = true
+      reject(error instanceof Error ? error : new DriveError('Token refresh failed.'))
+    }
+    setTimeout(() => {
+      if (settled) return
+      settled = true
+      reject(new DriveError('Token refresh request timed out.'))
+    }, 30_000)
+  })
 }
 
 async function driveFetch(url: string, init: RequestInit = {}, retry = true) {
@@ -190,9 +288,9 @@ async function driveFetch(url: string, init: RequestInit = {}, retry = true) {
   const response = await fetch(url, { ...init, headers })
   if (response.status === 401 && retry) {
     try {
-      const fresh = await requestAccessToken('')
+      const fresh = await accessTokenOrThrow() as string
       const retryHeaders = new Headers(init.headers)
-      retryHeaders.set('Authorization', `Bearer ${fresh.accessToken}`)
+      retryHeaders.set('Authorization', `Bearer ${fresh}`)
       return fetch(url, { ...init, headers: retryHeaders })
     } catch {
       throw new DriveError('Google Drive session expired. Reconnect it in Settings.', 'not_connected')
