@@ -62,7 +62,7 @@ function QuestionTile({ question, onOpen }: { question: Question; onOpen: () => 
   return (
     <button
       onClick={onOpen}
-      className="group relative aspect-[4/5] w-full shrink-0 overflow-hidden rounded-[22px] border border-line bg-surface-2 text-left transition-transform active:scale-[0.98]"
+      className="group relative aspect-[4/5] w-[calc(50%-0.375rem)] shrink-0 overflow-hidden rounded-[22px] border border-line bg-surface-2 text-left transition-transform active:scale-[0.98]"
     >
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -252,13 +252,13 @@ export default function DashboardPage() {
           </Link>
         </div>
         {data.recentQuestions.length ? (
-          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 no-scrollbar sm:mx-0 sm:px-0">
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-1 no-scrollbar sm:overflow-x-hidden sm:px-0">
             {data.recentQuestions.map((question) => (
               <QuestionTile key={question.id} question={question} onOpen={() => setOpenQuestionId(question.id)} />
             ))}
             <button
               onClick={() => setCaptureOpen(true)}
-              className="grid aspect-[4/5] w-full shrink-0 place-items-center rounded-[22px] border border-dashed border-line-strong text-muted transition-colors hover:text-ink"
+              className="grid aspect-[4/5] w-[calc(50%-0.375rem)] shrink-0 place-items-center rounded-[22px] border border-dashed border-line-strong text-muted transition-colors hover:text-ink"
             >
               <span className="flex flex-col items-center gap-1.5 text-[11px]">
                 <Plus className="h-5 w-5" /> Add
